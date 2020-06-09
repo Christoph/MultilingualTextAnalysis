@@ -21,8 +21,10 @@ def preprocess_text(text):
     return re.sub(r"[ ]+", " ", temp)
 
 
+language = 'hu'
+
 # Load data
-data = pd.read_csv('data/articles_dictionary_annotated_de.csv')
+data = pd.read_csv('data/articles_dictionary_annotated_'+language+'.csv')
 
 # Preprocess text
 clean_data = data['all_text_orig_lang_lemma'].apply(
@@ -50,16 +52,19 @@ y_data = mlb.fit_transform(all_classes)
 tfidf = TfidfVectorizer(max_df=0.8)
 vecs = tfidf.fit_transform(clean_data)
 
+# SVM
+svm = SVC()
+svm.fit(vecs, data['d_fr_eco'])
+
 # classification
 datasets = [
-    ["de tfidf 0.8", vecs]
+    ["tfidf 0.8", vecs]
 ]
 
 targets = [
     ['eco', data['d_fr_eco']],
-    # ['lab', data['d_fr_lab']],
-    # ['sec', data['d_fr_sec']],
-    # ['all three labels', y_data],
+    ['lab', data['d_fr_lab']],
+    ['sec', data['d_fr_sec']],
 ]
 
 classifications = [
@@ -90,52 +95,52 @@ classifications = [
         {"gamma": "scale", "kernel": "rbf"},
         {"gamma": "scale", "kernel": "linear"},
     ]],
-    ["Random Forest", RandomForestClassifier, [
-        #     {"n_estimators": 200, "criterion": "entropy", "min_samples_split": 0.01},
-        #     {"n_estimators": 200, "criterion": "entropy", "min_samples_split": 0.05},
-        {"n_estimators": 100, "criterion": "gini"},
-        {"n_estimators": 100, "criterion": "entropy"},
-        # {"n_estimators": 200, "criterion": "gini"},
-        #     {"n_estimators": 200, "criterion": "entropy"},
-        #     {"n_estimators": 300, "criterion": "gini"},
-        #     {"n_estimators": 300, "criterion": "entropy"},
-        #     {"n_estimators": 200, "criterion": "gini", "max_leaf_nodes": 179},
-        #     {"n_estimators": 200, "criterion": "entropy", "max_leaf_nodes": 179},
-    ]],
-    ["MLP", MLPClassifier, [
-        {"hidden_layer_sizes": 5, "activation": "relu",
-            "solver": "lbfgs", "max_iter": 200},
-        # {"hidden_layer_sizes": 10, "activation": "relu",
-        #     "solver": "lbfgs", "max_iter": 200},
-        # {"hidden_layer_sizes": 20, "activation": "relu",
-        #     "solver": "lbfgs", "max_iter": 200},
-        # {"hidden_layer_sizes": 20, "activation": "relu",
-        #     "solver": "lbfgs", "max_iter": 300},
-        # {"hidden_layer_sizes": 50, "activation": "relu",
-        #     "solver": "lbfgs", "max_iter": 200},
-        # {"hidden_layer_sizes": (10, 10), "activation": "relu",
-        #     "solver": "lbfgs", "max_iter": 200},
-        # {"hidden_layer_sizes": (20, 20, 20, 20, 5), "activation": "relu",
-        #  "solver": "lbfgs", "max_iter": 200},
-        # {"hidden_layer_sizes": (50, 50, 50), "activation": "relu",
-        #  "solver": "lbfgs", "max_iter": 200},
-        # {"hidden_layer_sizes": (50, 20, 10), "activation": "relu",
-        #  "solver": "lbfgs", "max_iter": 200},
-        {"hidden_layer_sizes": (20, 20, 20), "activation": "relu",
-         "solver": "lbfgs", "max_iter": 200},
-        # {"hidden_layer_sizes": (20, 20, 10), "activation": "relu",
-        #  "solver": "lbfgs", "max_iter": 200},
-        # {"hidden_layer_sizes": (20, 20, 20), "activation": "relu",
-        #  "solver": "lbfgs", "max_iter": 300},
-        # {"hidden_layer_sizes": (20, 20, 20), "activation": "relu",
-        #  "solver": "lbfgs", "max_iter": 400},
-    ]]
+    # ["Random Forest", RandomForestClassifier, [
+    #     #     {"n_estimators": 200, "criterion": "entropy", "min_samples_split": 0.01},
+    #     #     {"n_estimators": 200, "criterion": "entropy", "min_samples_split": 0.05},
+    #     {"n_estimators": 100, "criterion": "gini"},
+    #     {"n_estimators": 100, "criterion": "entropy"},
+    #     # {"n_estimators": 200, "criterion": "gini"},
+    #     #     {"n_estimators": 200, "criterion": "entropy"},
+    #     #     {"n_estimators": 300, "criterion": "gini"},
+    #     #     {"n_estimators": 300, "criterion": "entropy"},
+    #     #     {"n_estimators": 200, "criterion": "gini", "max_leaf_nodes": 179},
+    #     #     {"n_estimators": 200, "criterion": "entropy", "max_leaf_nodes": 179},
+    # ]],
+    # ["MLP", MLPClassifier, [
+    #     {"hidden_layer_sizes": 5, "activation": "relu",
+    #         "solver": "lbfgs", "max_iter": 200},
+    #     # {"hidden_layer_sizes": 10, "activation": "relu",
+    #     #     "solver": "lbfgs", "max_iter": 200},
+    #     # {"hidden_layer_sizes": 20, "activation": "relu",
+    #     #     "solver": "lbfgs", "max_iter": 200},
+    #     # {"hidden_layer_sizes": 20, "activation": "relu",
+    #     #     "solver": "lbfgs", "max_iter": 300},
+    #     # {"hidden_layer_sizes": 50, "activation": "relu",
+    #     #     "solver": "lbfgs", "max_iter": 200},
+    #     # {"hidden_layer_sizes": (10, 10), "activation": "relu",
+    #     #     "solver": "lbfgs", "max_iter": 200},
+    #     # {"hidden_layer_sizes": (20, 20, 20, 20, 5), "activation": "relu",
+    #     #  "solver": "lbfgs", "max_iter": 200},
+    #     # {"hidden_layer_sizes": (50, 50, 50), "activation": "relu",
+    #     #  "solver": "lbfgs", "max_iter": 200},
+    #     # {"hidden_layer_sizes": (50, 20, 10), "activation": "relu",
+    #     #  "solver": "lbfgs", "max_iter": 200},
+    #     {"hidden_layer_sizes": (20, 20, 20), "activation": "relu",
+    #      "solver": "lbfgs", "max_iter": 200},
+    #     # {"hidden_layer_sizes": (20, 20, 10), "activation": "relu",
+    #     #  "solver": "lbfgs", "max_iter": 200},
+    #     # {"hidden_layer_sizes": (20, 20, 20), "activation": "relu",
+    #     #  "solver": "lbfgs", "max_iter": 300},
+    #     # {"hidden_layer_sizes": (20, 20, 20), "activation": "relu",
+    #     #  "solver": "lbfgs", "max_iter": 400},
+    # ]]
 ]
 
 
 def find_best_classifier(datasets, targets, classifications):
     out = pd.DataFrame(
-        columns=["Dataset", "Target", "Method", "Params", "Accuracy", "Precision", "Recall"])
+        columns=["Language", "Dataset", "Target", "Method", "Params", "Accuracy", "Precision", "Recall"])
 
     # Iterate datasets
     for target_id, target in enumerate(targets):
@@ -201,7 +206,7 @@ def find_best_classifier(datasets, targets, classifications):
                     clf_acc = np.array(acc_scores).mean()
                     clf_pre = np.array(pre_scores).mean()
                     clf_rec = np.array(rec_scores).mean()
-                    out = out.append(pd.DataFrame([[name, target_name, clf_name, str(
+                    out = out.append(pd.DataFrame([[language, name, target_name, clf_name, str(
                         param), clf_acc, clf_pre, clf_rec]], columns=out.columns), ignore_index=True)
 
                 out.to_csv("results.csv", index=False)
