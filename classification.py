@@ -1,233 +1,325 @@
+
+# coding: utf-8
+
+# In[77]:
+# Import all used python libraries.
+
+import random
+from keras import models
+from keras.layers import Dropout, Dense
+import tensorflow as tf
 import pandas as pd
 import numpy as np
 import re
-from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier, RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
-from sklearn.neural_network import MLPClassifier
-from sklearn.model_selection import ShuffleSplit
-from sklearn.multioutput import MultiOutputClassifier
+from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import precision_recall_fscore_support
-from sklearn.preprocessing import MultiLabelBinarizer
+from sklearn.feature_selection import SelectKBest, f_classif
+import multiprocessing as mp
+from math import ceil
+
+# In[78]:
+# Load all used functions.
 
 
 def preprocess_text(text):
-    # replace non characers with space
-    # regexr = re.sub(r"[^a-zA-Z0-9.!? ]+", " ", text)
-    temp = re.sub(r"[/W/D/S.,-]+", " ", text.lower())
+    """Remove non-characters and lower case the text"""
+    # replace non characers with space and lower case
+    temp = re.sub(r"[/W/D/S.,-]+", " ", str(text).lower())
     # merge multiple spaces to a single one
     return re.sub(r"[ ]+", " ", temp)
 
 
-# language = 'es'
+def buckets(data, n):
+    """Return a factory that yields buckets with size n."""
+    # Shuffle all datasets to get a more consistent workload for all threads.
+    random.shuffle(data)
 
-# # Load data
-# data = pd.read_csv('data/articles_dictionary_annotated_'+language+'.csv')
+    for i in range(0, len(data), n):
+        yield data[i:i + n]
 
 
-def prepare_datasets(language, target, sampling, max_df_list):
-    data = pd.read_csv('data/articles_dictionary_annotated_'+language+'.csv')
-    output = []
+def sample_datasets(datasets, language, targets, sampling, tfidf_parameters, sample_reruns):
+    """Sample the datasets."""
+    # Load the csv
+    data = pd.read_csv(TRAIN_TEST_PATH+language+'.csv')
 
-    # Preprocess text
+    # preprocess the text
     data['clean'] = data['all_text_orig_lang_lemma'].apply(
         lambda x: preprocess_text(x))
 
-    positive = data[data[target] == 1]
-    negative = data[data[target] == 0]
+    for target in targets:
+        print(target)
+        for s in sampling:
+            positive = data[data[target] == 1]
 
-    for (positive_count, negative_count) in sampling:
-        try:
-            sample = positive.sample(positive_count)
-            sample = sample.append(negative.sample(negative_count))
+            if s <= len(positive):
+                for _ in range(sample_reruns):
+                    if s == 'max_pos':
+                        # Sample as many text as there are positive samples
+                        positive = data[data[target] == 1]
+                        negative = data[data[target] == 0]
 
-            for maxdf in max_df_list:
-                tfidf = TfidfVectorizer(max_df=maxdf)
-                vecs = tfidf.fit_transform(sample['clean'])
-                target_vec = sample[target]
+                        sample = positive
+                        sample = sample.append(negative.sample(len(positive)))
 
-                output.append([
-                    ' '.join([
-                        language,
+                        sampled_data = sample
+                    elif s > 0:
+                        # Sample a specific number of texts
+                        positive = data[data[target] == 1]
+                        negative = data[data[target] == 0]
+
+                        if len(positive) > s:
+                            sample = positive.sample(s)
+                            sample = sample.append(negative.sample(s))
+                        else:
+                            continue
+
+                        sampled_data = sample
+                    else:
+                        # Use all the available data
+                        # Triggered if sampling is set to 0
+                        sampled_data = data
+
+                    positive_count = len(
+                        sampled_data[sampled_data[target] == 1])
+                    negative_count = len(
+                        sampled_data[sampled_data[target] == 0])
+
+                    datasets.append(prepare_datasets(
+                        sampled_data,
                         target,
-                        'tfidf-'+str(maxdf),
-                        str(positive_count),
-                        str(negative_count)
-                    ]),
-                    vecs,
-                    target_vec
-                ])
-        except:
-            print('Too many samples:', target, sampling, max_df_list)
+                        tfidf_parameters,
+                        positive_count,
+                        negative_count
+                    ))
+
+
+def prepare_datasets(data, target, tfidf_parameters, positive_count, negative_count):
+    """Create the tfidf vectors for a specific dataset and return metadata, vectors, and labels."""
+    vectorizer = TfidfVectorizer(**tfidf_parameters)
+
+    # Learn vocabulary from training texts and vectorize training texts.
+    x_train = vectorizer.fit_transform(data['clean'])
+    train_labels = data[target]
+
+    # Select top words of the vectorized features.
+    selector = SelectKBest(f_classif, k=min(20000, x_train.shape[1]))
+    selector.fit(x_train, train_labels)
+    x_train = selector.transform(x_train).astype('float32')
+
+    output = [
+        ' '.join([
+            language,
+            target,
+            str(positive_count),
+            str(negative_count)
+        ]),
+        x_train,
+        train_labels,
+    ]
 
     return output
 
 
-sampling = [
-    [1000, 1000],
-    [500, 1000],
-    [500, 500],
-    [250, 250],
-]
-tfidf_maxdf = [0.5, 0.7, 0.9]
-
-classifications = [
-    ["DecisionTree", DecisionTreeClassifier, [
-        {"criterion": "gini", "min_samples_split": 0.01},
-        {"criterion": "entropy", "min_samples_split": 0.01},
-        {"criterion": "gini", "min_samples_split": 0.05},
-        {"criterion": "entropy", "min_samples_split": 0.05},
-        # {"criterion": "gini"},
-        # {"criterion": "entropy"},
-    ]],
-    # ["AdaBoost", AdaBoostClassifier, [
-    #     {"n_estimators": 25, "learning_rate": 1},
-    #     # {"n_estimators": 25, "learning_rate": 0.5},
-    #     # {"n_estimators": 50, "learning_rate": 1},
-    #     # {"n_estimators": 100, "learning_rate": 1},
-    #     # {"n_estimators": 200, "learning_rate": 1},
-    #     # {"n_estimators": 300, "learning_rate": 1},
-    # ]],
-    # ["GradientBoostingClassifier", GradientBoostingClassifier, [
-    #     {"n_estimators": 25},
-    #     # {"n_estimators": 50},
-    #     {"n_estimators": 100},
-    #     # {"n_estimators": 200},
-    #     # {"n_estimators": 300},
-    # ]],
-    # ["SVM", SVC, [
-    #     {"gamma": "scale", "kernel": "rbf"},
-    #     {"gamma": "scale", "kernel": "linear"},
-    # ]],
-    ["Random Forest", RandomForestClassifier, [
-        # {"n_estimators": 200, "criterion": "entropy", "min_samples_split": 0.01},
-        # {"n_estimators": 200, "criterion": "entropy", "min_samples_split": 0.05},
-        {"n_estimators": 100, "criterion": "gini"},
-        {"n_estimators": 100, "criterion": "entropy"},
-        # {"n_estimators": 200, "criterion": "gini"},
-        #     {"n_estimators": 200, "criterion": "entropy"},
-        #     {"n_estimators": 300, "criterion": "gini"},
-        #     {"n_estimators": 300, "criterion": "entropy"},
-        #     {"n_estimators": 200, "criterion": "gini", "max_leaf_nodes": 179},
-        #     {"n_estimators": 200, "criterion": "entropy", "max_leaf_nodes": 179},
-    ]],
-    # ["MLP", MLPClassifier, [
-    #     {"hidden_layer_sizes": 5, "activation": "relu",
-    #         "solver": "lbfgs", "max_iter": 200},
-    #     # {"hidden_layer_sizes": 10, "activation": "relu",
-    #     #     "solver": "lbfgs", "max_iter": 200},
-    #     # {"hidden_layer_sizes": 20, "activation": "relu",
-    #     #     "solver": "lbfgs", "max_iter": 200},
-    #     # {"hidden_layer_sizes": 20, "activation": "relu",
-    #     #     "solver": "lbfgs", "max_iter": 300},
-    #     # {"hidden_layer_sizes": 50, "activation": "relu",
-    #     #     "solver": "lbfgs", "max_iter": 200},
-    #     # {"hidden_layer_sizes": (10, 10), "activation": "relu",
-    #     #     "solver": "lbfgs", "max_iter": 200},
-    #     # {"hidden_layer_sizes": (20, 20, 20, 20, 5), "activation": "relu",
-    #     #  "solver": "lbfgs", "max_iter": 200},
-    #     # {"hidden_layer_sizes": (50, 50, 50), "activation": "relu",
-    #     #  "solver": "lbfgs", "max_iter": 200},
-    #     # {"hidden_layer_sizes": (50, 20, 10), "activation": "relu",
-    #     #  "solver": "lbfgs", "max_iter": 200},
-    #     {"hidden_layer_sizes": (20, 20, 20), "activation": "relu",
-    #      "solver": "lbfgs", "max_iter": 200},
-    #     # {"hidden_layer_sizes": (20, 20, 10), "activation": "relu",
-    #     #  "solver": "lbfgs", "max_iter": 200},
-    #     # {"hidden_layer_sizes": (20, 20, 20), "activation": "relu",
-    #     #  "solver": "lbfgs", "max_iter": 300},
-    #     # {"hidden_layer_sizes": (20, 20, 20), "activation": "relu",
-    #     #  "solver": "lbfgs", "max_iter": 400},
-    # ]]
-]
-
-
-def find_best_classifier(classifications):
+def train_classifiers(datasets):
+    """Train the classifiers on all datasets."""
+    # Create result dataframe
     out = pd.DataFrame(
-        columns=["Dataset", "Method", "Params", "Accuracy", "Precision", "Recall"])
+        columns=["Dataset", "Classifier", "Accuracy", "F1", "Precision", "Recall"])
 
-    # Iterate datasets
-    for target_id, target in enumerate(['d_fr_eco', 'd_fr_lab', 'd_fr_sec']):
-        target_name = target[0]
-        y = target[1]
+    # Iterate the datasets
+    for data_id, dataset in enumerate(datasets):
+        dataset_name = dataset[0]
+        data = dataset[1]
+        y = np.array(dataset[2])
+        skf = StratifiedKFold(n_splits=4)
+        split_indices = []
+        print(dataset_name)
 
-        print("targets: ", str(target_id+1), "/", str(3))
+        for train_indices, test_indices in skf.split(data, y):
+            split_indices.append((train_indices, test_indices))
 
-        datasets = prepare_datasets(
-            'es',
-            target,
-            sampling,
-            tfidf_maxdf)
+            print("datasets: ", str(data_id+1), "/", str(len(datasets)))
 
-        for data_id, dataset in enumerate(datasets):
-            dataset_name = dataset[0]
-            data = dataset[1]
-            y = np.array(dataset[2])
-            skf = ShuffleSplit(n_splits=3)
-            split_indices = []
+            clf_params = [
+                'mlp',
+                'svm',
+                'rf'
+            ]
 
-            for train_index, test_index in skf.split(data, y):
-                split_indices.append((train_index, test_index))
+            # Iterate classifiers
+            for model_type in clf_params:
+                print("Classifier: ", str(model_type))
 
-                print("datasets: ", str(data_id+1), "/", str(len(datasets)))
+                acc_scores = []
+                pre_scores = []
+                rec_scores = []
+                f1_scores = []
 
-                # Iterate classifications
-                for cls_id, classification in enumerate(classifications):
-                    clf_name = classification[0]
-                    clf_params = classification[2]
+                # Iterate splits
+                for train_index, test_index in split_indices:
+                    global X_train
+                    X_train, X_test = data[train_index], data[test_index]
+                    y_train, y_test = y[train_index], y[test_index]
+                    y_pred = None
 
-                    print("classifier: ", clf_name, ", ", str(
-                        cls_id+1), "/", len(classifications))
+                    if model_type == 'mlp':
+                        # Create model instance.
+                        model = mlp_model(layers=2, units=64, dropout_rate=0.2,
+                                          input_shape=X_train.shape[1:], num_classes=2)
+                        optimizer = tf.keras.optimizers.Adam(lr=1e-3)
+                        model.compile(optimizer=optimizer,
+                                      loss='binary_crossentropy', metrics=['acc'])
 
-                    # Iterate parametrizations
-                    for p_id, param in enumerate(clf_params):
-                        print("Params: ", param, ", ", str(
-                            p_id+1), "/"+str(len(clf_params)))
+                        # Stop training is validation loss doesnt decrease for 3 steps
+                        callbacks = [tf.keras.callbacks.EarlyStopping(
+                            monitor='val_loss', patience=3)]
 
-                        acc_scores = []
-                        pre_scores = []
-                        rec_scores = []
+                        # Train and validate model.
+                        history = model.fit(
+                            X_train,
+                            y_train,
+                            epochs=100,
+                            callbacks=callbacks,
+                            validation_data=(X_test, y_test),
+                            verbose=0,
+                            batch_size=512)
 
-                        # Iterate splits
-                        for train_index, test_index in split_indices:
+                        acc_scores.append(history.history['val_acc'][-1])
+                        y_pred = [round(a[0]) for a in model.predict(X_test)]
+                    elif model_type == 'svm':
+                        # Linear SVM
+                        model = SVC(gamma=0.001, kernel='linear')
 
-                            X_train, X_test = data[train_index], data[test_index]
-                            y_train, y_test = y[train_index], y[test_index]
+                        model.fit(X_train, y_train)
 
-                            if len(y.shape) > 1:
-                                clf = MultiOutputClassifier(
-                                    classification[1](**param))
-                            else:
-                                clf = classification[1](**param)
-                            try:
-                                clf.fit(X_train, y_train)
-                                y_pred = clf.predict(X_test)
-                                prfs = precision_recall_fscore_support(
-                                    y_test, y_pred, warn_for=[])
+                        acc_scores.append(model.score(X_test, y_test))
+                        y_pred = model.predict(X_test)
+                    elif model_type == 'rf':
+                        # Random Forest Classifier
+                        model = RandomForestClassifier(
+                            criterion='entropy', n_estimators=200)
 
-                                acc_scores.append(clf.score(X_test, y_test))
-                                pre_scores.append(prfs[0].mean())
-                                rec_scores.append(prfs[1].mean())
-                            except:
-                                print("Exception during fitting")
-                                acc_scores.append(0)
-                                pre_scores.append(0)
-                                rec_scores.append(0)
+                        model.fit(X_train, y_train)
 
-                        clf_acc = np.array(acc_scores).mean()
-                        clf_pre = np.array(pre_scores).mean()
-                        clf_rec = np.array(rec_scores).mean()
-                        out = out.append(pd.DataFrame([[dataset_name, clf_name, str(
-                            param), clf_acc, clf_pre, clf_rec]], columns=out.columns), ignore_index=True)
+                        acc_scores.append(model.score(X_test, y_test))
+                        y_pred = model.predict(X_test)
 
-                    out.to_csv("results.csv", index=False)
+                    # Compute the results
+                    prfs = precision_recall_fscore_support(
+                        y_test, y_pred, warn_for=[])
 
-    # Final save
-    out.to_csv("results.csv", index=False)
+                    pre_scores.append(prfs[0].mean())
+                    rec_scores.append(prfs[1].mean())
+                    f1_scores.append(prfs[2].mean())
 
-    print("DONE!")
+                # Append average scores
+                clf_acc = np.array(acc_scores).mean()
+                clf_pre = np.array(pre_scores).mean()
+                clf_rec = np.array(rec_scores).mean()
+                clf_f1 = np.array(f1_scores).mean()
+
+                out = out.append(pd.DataFrame(
+                    [[dataset_name, model_type, clf_acc, clf_f1, clf_pre, clf_rec]], columns=out.columns), ignore_index=True)
+
+    return out
 
 
-find_best_classifier(classifications)
+def _get_last_layer_units_and_activation(num_classes):
+    """Gets the # units and activation function for the last network layer.
+
+    # Arguments
+        num_classes: int, number of classes.
+
+    # Returns
+        units, activation values.
+    """
+    # https://developers.google.com/machine-learning/guides/text-classification/step-4
+
+    if num_classes == 2:
+        activation = 'sigmoid'
+        units = 1
+    else:
+        activation = 'softmax'
+        units = num_classes
+    return units, activation
+
+
+def mlp_model(layers, units, dropout_rate, input_shape, num_classes):
+    """Creates an instance of a multi-layer perceptron model.
+
+    # Arguments
+        layers: int, number of `Dense` layers in the model.
+        units: int, output dimension of the layers.
+        dropout_rate: float, percentage of input to drop at Dropout layers.
+        input_shape: tuple, shape of input to the model.
+        num_classes: int, number of output classes.
+
+    # Returns
+        An MLP model instance.
+    """
+    # https://developers.google.com/machine-learning/guides/text-classification/step-4
+
+    op_units, op_activation = _get_last_layer_units_and_activation(num_classes)
+    model = models.Sequential()
+    model.add(Dropout(rate=dropout_rate, input_shape=input_shape))
+
+    for _ in range(layers-1):
+        model.add(Dense(units=units, activation='relu'))
+        model.add(Dropout(rate=dropout_rate))
+
+    model.add(Dense(units=op_units, activation=op_activation))
+    return model
+
+
+# In[79]:
+# Prepare all datasets.
+# Be careful this step can take a considerable amount of time.
+datasets = []
+
+SUB_SAMPLE_RERUNS = 5
+tfidf_parameters = {
+    'ngram_range': (1, 2),
+    'dtype': 'int32',
+    'strip_accents': 'unicode',
+    'decode_error': 'replace',
+    'analyzer': 'word',
+    'min_df': 2,
+}
+
+TRAIN_TEST_PATH = 'data/articles_dictionary_annotated_'
+languages = ['de', 'es', 'pl', 'ro', 'sv', 'uk']
+targets = ['d_fr_eco', 'd_fr_lab', 'd_fr_sec', 'd_fr_wel']
+sampling = [100, 150, 200, 250, 300, 350,
+            400, 450, 500, 600, 700, 800, 900, 1000, 1500, 2000, 'max_pos', 0]
+
+for language in languages:
+    print(language)
+    sample_datasets(datasets, language, targets,
+                    sampling, tfidf_parameters, SUB_SAMPLE_RERUNS)
+
+# In[80]:
+# Run all the different dataset and model combinations.
+# Fast version using data parallelism.
+# Use this cell OR the cell below.
+
+pool = mp.Pool(processes=(mp.cpu_count()))
+results = pool.map(train_classifiers, buckets(
+    datasets, ceil(len(datasets)/(mp.cpu_count()))))
+pool.close()
+pool.join()
+
+output = pd.concat(results)
+output.to_csv(('results_classifications.csv'), index=False)
+
+print('DONE')
+# In[81]:
+# Single threaded version.
+# Be careful: this might take very long!
+output = train_classifiers(datasets)
+output.to_csv(('results_all_.csv'), index=False)
+
+print('DONE')
