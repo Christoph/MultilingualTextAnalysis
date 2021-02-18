@@ -1,5 +1,16 @@
 # MultilingualTextAnalysis
-This repository contains two scripts, one for classifier selection and one for model validation.
+This repository contains six scripts, four for annotation with dictionaries, one for classifier selection and one for model validation.
+
+
+### Dictionary Annotation
+
+Economy_Dictionary_Annotation.R
+Labor_Market_Dictionary_Annotation.R
+Security_Dictionary_Annotation.R
+Welfare_Dictionary_Annotation.R
+
+were used to annotate the English documents reagrding the occurance of the Economy & budget, Labor market, Security, and Welfare frame. 
+
 
 ### Classifier Selection
 The classification.py file was used to compare classification methods for smaller datasets.
