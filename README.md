@@ -1,5 +1,10 @@
 # MultilingualTextAnalysis
-This repository contains six scripts, four for annotation with dictionaries, one for classifier selection and one for model validation.
+
+This is the repository for the article:
+Greasing the wheels for comparative communication research: Supervised text classification for multilingual corpora.
+
+
+The repository contains six scripts (four for annotation with dictionaries, one for classifier selection and one for model validation), two data files, and two files with results.
 
 
 ### Dictionary Annotation
@@ -41,3 +46,17 @@ sampling = [100, 150, 200, 250, 300, 350,
 (Be careful if you use all parameters it will take a lot of time.)
 - Lines 264 - 272 train the MLP model on the sampled datasets and validate using the validation datasets.
 (Again be careful this step can take very long)
+
+### Data
+
+The file is the sperate validation data. It was automatically annotated by the four dictionaries.
+
+The file is the sperate validation data. It was manually annotated by native speakers.
+
+### Results
+
+The file results for classfier selection and validation
+
+
+
+
