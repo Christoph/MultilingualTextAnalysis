@@ -1,7 +1,7 @@
 # MultilingualTextAnalysis
-This repository contains two scripts, one for algorithm selection and one for model validation.
+This repository contains two scripts, one for classifier selection and one for model validation.
 
-### Algorithm Selection
+### Classifier Selection
 The classification.py file was used to compare classification methods for smaller datasets.
 
 Structure:
