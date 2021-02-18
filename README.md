@@ -24,7 +24,7 @@ Structure:
 - Everything before line 280 loads libraries and functions.
 - Lines 281 - 303 sample the datasets based on the sampling parameters. 
 Sampling Parameters:
-languages = ['de', 'es', 'pl', 'ro', 'sv', 'uk']
+languages = ['de', 'es', 'pl', 'ro', 'sv', 'en']
 targets = ['d_fr_eco', 'd_fr_lab', 'd_fr_sec', 'd_fr_wel']
 sampling = [100, 150, 200, 250, 300, 350,
             400, 450, 500, 600, 700, 800, 900, 1000]
@@ -39,7 +39,7 @@ Structure:
 - Everything before line 233 loads libraries and functions.
 - Lines 234 - 257 sample the datasets based on the sampling parameters. 
 Sampling Parameters:
-languages = ['de', 'es', 'pl', 'ro', 'sv', 'uk']
+languages = ['de', 'es', 'pl', 'ro', 'sv', 'en']
 targets = ['d_fr_eco', 'd_fr_lab', 'd_fr_sec', 'd_fr_wel']
 sampling = [100, 150, 200, 250, 300, 350,
             400, 450, 500, 600, 700, 800, 900, 1000]
