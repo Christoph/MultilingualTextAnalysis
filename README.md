@@ -49,9 +49,9 @@ sampling = [100, 150, 200, 250, 300, 350,
 
 ### Data
 
-The file is the sperate validation data. It was automatically annotated by the four dictionaries.
+The file is the sperate validation data. It was automatically annotated with the four dictionaries.
 
-The file is the sperate validation data. It was manually annotated by native speakers.
+The articles_manual_annotated_validation_set.csv file is the sperate validation data. It was manually annotated by native speakers.
 
 ### Results
 
