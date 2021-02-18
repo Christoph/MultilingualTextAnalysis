@@ -294,7 +294,7 @@ TRAIN_TEST_PATH = 'data/articles_dictionary_annotated_'
 languages = ['de', 'es', 'pl', 'ro', 'sv', 'uk']
 targets = ['d_fr_eco', 'd_fr_lab', 'd_fr_sec', 'd_fr_wel']
 sampling = [100, 150, 200, 250, 300, 350,
-            400, 450, 500, 600, 700, 800, 900, 1000, 1500, 2000, 'max_pos', 0]
+            400, 450, 500, 600, 700, 800, 900, 1000, 'max_pos', 0]
 
 for language in languages:
     print(language)
