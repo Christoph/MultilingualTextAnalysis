@@ -42,14 +42,14 @@ Sampling Parameters:
 languages = ['de', 'es', 'pl', 'ro', 'sv', 'uk']
 targets = ['d_fr_eco', 'd_fr_lab', 'd_fr_sec', 'd_fr_wel']
 sampling = [100, 150, 200, 250, 300, 350,
-            400, 450, 500, 600, 700, 800, 900, 1000, 'max_pos', 0]
+            400, 450, 500, 600, 700, 800, 900, 1000]
 (Be careful if you use all parameters it will take a lot of time.)
 - Lines 264 - 272 train the MLP model on the sampled datasets and validate using the validation datasets.
 (Again be careful this step can take very long)
 
 ### Data
 
-The articles_dictionary_annotated_train_test_set.csv file is the sperate validation data. It was automatically annotated with the four dictionaries.
+The articles_dictionary_annotated_train_test_set.csv file is the separate validation data. It was automatically annotated with the four dictionaries.
 
 The articles_manual_annotated_validation_set.csv file is the sperate validation data. It was manually annotated by native speakers.
 
