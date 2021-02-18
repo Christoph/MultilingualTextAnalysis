@@ -248,7 +248,7 @@ VALIDATION_SET_PATH = "validate/articles_manual_annotated_925_"
 languages = ['de', 'hu', 'pl', 'ro', 'uk', 'sv', 'es']
 targets = ['fr_eco', 'fr_lab', 'fr_sec', 'fr_wel']
 sampling = [100, 150, 200, 250, 300, 350,
-            400, 450, 500, 600, 700, 800, 900, 1000, 1500, 2000]
+            400, 450, 500, 600, 700, 800, 900, 1000]
 
 for language in languages:
     print(language)
