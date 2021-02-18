@@ -55,7 +55,9 @@ The articles_manual_annotated_validation_set.csv file is the sperate validation 
 
 ### Results
 
-The file results for classfier selection and validation
+The dictionary_training_test_results.csv file includes the results for classfier selection.
+
+The validation_results.csv file the results for validation.
 
 
 
