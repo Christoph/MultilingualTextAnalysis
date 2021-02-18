@@ -245,7 +245,7 @@ tfidf_parameters = {
 
 TRAIN_TEST_PATH = 'data/articles_dictionary_annotated_'
 VALIDATION_SET_PATH = "validate/articles_manual_annotated_925_"
-languages = ['de', 'hu', 'pl', 'ro', 'uk', 'sv', 'es']
+languages = ['de', 'hu', 'pl', 'ro', 'en', 'sv', 'es']
 targets = ['fr_eco', 'fr_lab', 'fr_sec', 'fr_wel']
 sampling = [100, 150, 200, 250, 300, 350,
             400, 450, 500, 600, 700, 800, 900, 1000]
