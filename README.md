@@ -9,7 +9,7 @@ Labor_Market_Dictionary_Annotation.R
 Security_Dictionary_Annotation.R
 Welfare_Dictionary_Annotation.R
 
-were used to annotate the English documents reagrding the occurance of the Economy & budget, Labor market, Security, and Welfare frame. 
+were used to annotate the English documents regarding the occurance of the Economy & budget, Labor market, Security, and Welfare frame. 
 
 
 ### Classifier Selection
