@@ -1,7 +1,8 @@
 # MultilingualTextAnalysis
 
 This is the repository for the article:
-Greasing the wheels for comparative communication research: Supervised text classification for multilingual corpora.
+Greasing the wheels for comparative communication research: Supervised text classification for multilingual corpora. https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3840747
+The article is under review at Computational Communication Research (https://computationalcommunication.org/ccr/preprint)
 
 
 The repository contains six scripts (four for annotation with dictionaries, one for classifier selection and one for model validation), two data files, and two files with results.
