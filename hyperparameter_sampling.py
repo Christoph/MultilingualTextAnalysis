@@ -143,7 +143,7 @@ def prepare_datasets(data, target, tfidf_parameters, positive_count, negative_co
     train_labels = data[target]
 
     # Select top words of the vectorized features.
-    selector = SelectKBest(f_classif, k=min(20000, x_train.shape[1]))
+    selector = SelectKBest(f_classif, k=min(TOP_K_WORDS, x_train.shape[1]))
     selector.fit(x_train, train_labels)
     x_train = selector.transform(x_train).astype('float32')
 
@@ -264,57 +264,98 @@ def hyperparameter_sampling(datasets):
 
 # %%
 classifications = [
-    ["DecisionTree", DecisionTreeClassifier, [
-        #    {"criterion": "gini", "min_samples_split": 0.01},
-        #    {"criterion": "entropy", "min_samples_split": 0.01},
-        #    {"criterion": "gini", "min_samples_split": 0.05},
-        #    {"criterion": "entropy", "min_samples_split": 0.05},
-        #    {"criterion": "gini"},
-        {"criterion": "entropy"},
-    ]],
-    ["AdaBoost", AdaBoostClassifier, [
-        {"n_estimators": 25, "learning_rate": 1},
-        # {"n_estimators": 25, "learning_rate": 0.5},
-        # {"n_estimators": 50, "learning_rate": 1},
-        # {"n_estimators": 100, "learning_rate": 1},
-        # {"n_estimators": 200, "learning_rate": 1},
-        # {"n_estimators": 300, "learning_rate": 1},
-    ]],
-    ["GradientBoostingClassifier", GradientBoostingClassifier, [
-        #     {"n_estimators": 25},
-        # {"n_estimators": 50},
-        #     {"n_estimators": 100},
-        {"n_estimators": 200},
-        # {"n_estimators": 300},
-    ]],
+    # ["DecisionTree", DecisionTreeClassifier, [
+    #     #    {"criterion": "gini", "min_samples_split": 0.01},
+    #     #    {"criterion": "entropy", "min_samples_split": 0.01},
+    #     #    {"criterion": "gini", "min_samples_split": 0.05},
+    #     #    {"criterion": "entropy", "min_samples_split": 0.05},
+    #     #    {"criterion": "gini"},
+    #     {"criterion": "entropy"},
+    # ]],
+    # ["AdaBoost", AdaBoostClassifier, [
+    #     {"n_estimators": 25, "learning_rate": 1},
+    #     # {"n_estimators": 25, "learning_rate": 0.5},
+    #     # {"n_estimators": 50, "learning_rate": 1},
+    #     # {"n_estimators": 100, "learning_rate": 1},
+    #     # {"n_estimators": 200, "learning_rate": 1},
+    #     # {"n_estimators": 300, "learning_rate": 1},
+    # ]],
+    # ["GradientBoostingClassifier", GradientBoostingClassifier, [
+    #     #     {"n_estimators": 25},
+    #     # {"n_estimators": 50},
+    #     #     {"n_estimators": 100},
+    #     {"n_estimators": 200},
+    #     # {"n_estimators": 300},
+    # ]],
     ["SVM", SVC, [
-        {"gamma": 0.001, "kernel": "rbf"},
-        # {"gamma": 0.001, "kernel": "linear"},
-        # {"gamma": 0.001, "kernel": "poly"}
+        {"C": 1, "kernel": "rbf"},
+        {"C": 1, "kernel": "linear"},
+        {"C": 1, "kernel": "sigmoid"},
+        {"C": 1, "kernel": "poly"},
+        {"C": 3, "kernel": "rbf"},
+        {"C": 3, "kernel": "linear"},
+        {"C": 3, "kernel": "sigmoid"},
+        {"C": 3, "kernel": "poly"},
+        {"C": 5, "kernel": "rbf"},
+        {"C": 5, "kernel": "linear"},
+        {"C": 5, "kernel": "sigmoid"},
+        {"C": 5, "kernel": "poly"}
     ]],
-    ["Nearest Neighbor", KNeighborsClassifier, [
-        {'n_neighbors': 3},
-        #    {'n_neighbors':4},
-        #    {'n_neighbors':5},
-        #    {'n_neighbors':6},
-    ]],
-    ["Naive Bayes Gaussian", MultinomialNB, [
-        {}]],
+    # ["Nearest Neighbor", KNeighborsClassifier, [
+    #     {'n_neighbors': 3},
+    #     #    {'n_neighbors':4},
+    #     #    {'n_neighbors':5},
+    #     #    {'n_neighbors':6},
+    # ]],
+    # ["Naive Bayes Gaussian", MultinomialNB, [
+    #     {}]],
     ["Random Forest", RandomForestClassifier, [
-        #       {"n_estimators": 200, "criterion": "entropy", "min_samples_split": 0.01},
-        #       {"n_estimators": 200, "criterion": "entropy", "min_samples_split": 0.05},
-        #      {"n_estimators": 100, "criterion": "gini"},
-        #     {"n_estimators": 100, "criterion": "entropy"},
-        # {"n_estimators": 200, "criterion": "gini"},
-        #     {"n_estimators": 200, "criterion": "entropy"},
-        # {"n_estimators": 300, "criterion": "gini"},
+        {"n_estimators": 50, "criterion": "entropy"},
+        {"n_estimators": 100, "criterion": "entropy"},
+        {"n_estimators": 200, "criterion": "entropy"},
         {"n_estimators": 300, "criterion": "entropy"},
-        #     {"n_estimators": 200, "criterion": "gini", "max_leaf_nodes": 179},
-        #     {"n_estimators": 200, "criterion": "entropy", "max_leaf_nodes": 179},
+        {"n_estimators": 50, "criterion": "gini"},
+        {"n_estimators": 100, "criterion": "gini"},
+        {"n_estimators": 200, "criterion": "gini"},
+        {"n_estimators": 300, "criterion": "gini"},
     ]],
     ["MLP", "Keras", [
         {"hidden_layers": 2, "hidden_units": 64, "dropout_rate": 0.2,
             "learning_rate": 1e-3, "epochs": 100},
+        {"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2,
+            "learning_rate": 1e-3, "epochs": 100},
+        {"hidden_layers": 2, "hidden_units": 128, "dropout_rate": 0.2,
+            "learning_rate": 1e-3, "epochs": 100},
+        {"hidden_layers": 3, "hidden_units": 64, "dropout_rate": 0.2,
+            "learning_rate": 1e-3, "epochs": 100},
+        {"hidden_layers": 3, "hidden_units": 64, "dropout_rate": 0.2,
+            "learning_rate": 1e-3, "epochs": 100},
+        {"hidden_layers": 3, "hidden_units": 64, "dropout_rate": 0.2,
+            "learning_rate": 1e-3, "epochs": 100},
+        {"hidden_layers": 3, "hidden_units": 32, "dropout_rate": 0.2,
+            "learning_rate": 1e-3, "epochs": 100},
+        {"hidden_layers": 3, "hidden_units": 32, "dropout_rate": 0.2,
+            "learning_rate": 1e-3, "epochs": 100},
+        {"hidden_layers": 3, "hidden_units": 32, "dropout_rate": 0.2,
+            "learning_rate": 1e-3, "epochs": 100},
+        {"hidden_layers": 3, "hidden_units": 16, "dropout_rate": 0.2,
+            "learning_rate": 1e-3, "epochs": 100},
+        {"hidden_layers": 3, "hidden_units": 16, "dropout_rate": 0.2,
+            "learning_rate": 1e-3, "epochs": 100},
+        {"hidden_layers": 3, "hidden_units": 16, "dropout_rate": 0.2,
+            "learning_rate": 1e-3, "epochs": 100},
+        {"hidden_layers": 2, "hidden_units": 64, "dropout_rate": 0.1,
+            "learning_rate": 1e-3, "epochs": 100},
+        {"hidden_layers": 2, "hidden_units": 64, "dropout_rate": 0.2,
+            "learning_rate": 1e-3, "epochs": 100},
+        {"hidden_layers": 2, "hidden_units": 64, "dropout_rate": 0.4,
+            "learning_rate": 1e-3, "epochs": 100},
+        {"hidden_layers": 2, "hidden_units": 64, "dropout_rate": 0.2,
+            "learning_rate": 1e-3, "epochs": 100},
+        {"hidden_layers": 2, "hidden_units": 64, "dropout_rate": 0.2,
+            "learning_rate": 1e-2, "epochs": 100},
+        {"hidden_layers": 2, "hidden_units": 64, "dropout_rate": 0.2,
+            "learning_rate": 1e-4, "epochs": 100},
     ]]
 ]
 
@@ -331,8 +372,9 @@ tfidf_parameters = [{
 # In[79]:
 datasets = []
 
-SUMBER_OF_KFOLD_SPLITS = 4
-SUB_SAMPLE_RERUNS = 2
+SUMBER_OF_KFOLD_SPLITS = 3
+SUB_SAMPLE_RERUNS = 1
+TOP_K_WORDS = 20000
 
 
 TRAIN_TEST_PATH = 'data/articles_dictionary_annotated_'
