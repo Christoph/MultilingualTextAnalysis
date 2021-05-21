@@ -1,4 +1,7 @@
 # coding: utf-8
+
+# In[77]:
+
 import pandas as pd
 import numpy as np
 import re
@@ -15,6 +18,7 @@ import pandas as pd
 import numpy as np
 import re
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.model_selection import StratifiedKFold
@@ -23,8 +27,9 @@ from sklearn.feature_selection import SelectKBest, f_classif
 import multiprocessing as mp
 from math import ceil
 import tensorflow as tf
-import getpass
 
+
+# In[78]:
 def preprocess_text(text):
     """Remove non-characters and lower case the text"""
     # replace non characers with space and lower case
@@ -59,6 +64,7 @@ def _get_last_layer_units_and_activation(num_classes):
         units = num_classes
     return units, activation
 
+
 def mlp_model(layers, units, dropout_rate, input_shape, num_classes):
     """Creates an instance of a multi-layer perceptron model.
     # Arguments
@@ -82,6 +88,10 @@ def mlp_model(layers, units, dropout_rate, input_shape, num_classes):
 
     model.add(Dense(units=op_units, activation=op_activation))
     return model
+
+# # Load data
+# data = pd.read_csv('data/articles_dictionary_annotated_'+language+'.csv')
+
 
 def sample_datasets(datasets, language, targets, tfidf_parameters, sample_reruns):
     """Sample the datasets."""
@@ -118,6 +128,7 @@ def sample_datasets(datasets, language, targets, tfidf_parameters, sample_reruns
                     negative_count
                 ))
 
+
 def prepare_datasets(data, target, tfidf_parameters, positive_count, negative_count):
     """Create the tfidf vectors for a specific dataset and return metadata, vectors, and labels."""
     vectorizer = TfidfVectorizer(**tfidf_parameters)
@@ -143,6 +154,7 @@ def prepare_datasets(data, target, tfidf_parameters, positive_count, negative_co
     ]
 
     return output
+
 
 def hyperparameter_sampling(datasets):
     # Create result dataframe
@@ -245,6 +257,7 @@ def hyperparameter_sampling(datasets):
     return out
 
 
+# %%
 classifications = [
     # ["DecisionTree", DecisionTreeClassifier, [
     #     #    {"criterion": "gini", "min_samples_split": 1e-2},
@@ -363,14 +376,15 @@ tfidf_parameters = [{
 }]
 
 
+# In[79]:
 datasets = []
 
 SUMBER_OF_KFOLD_SPLITS = 3
 SUB_SAMPLE_RERUNS = 1
-TOP_K_WORDS = 30000
+TOP_K_WORDS = 20000
 
-usr = getpass.getuser()
-TRAIN_TEST_PATH = f'/Users/{usr}/ucloud/Shared/Multilingual Machine Learning/data/develop_and_test/articles_dictionary_annotated_'
+
+TRAIN_TEST_PATH = 'data/articles_dictionary_annotated_'
 languages = ['de', 'es', 'pl', 'ro', 'sv', 'uk']
 targets = ['d_fr_eco', 'd_fr_lab', 'd_fr_sec', 'd_fr_wel']
 
@@ -381,6 +395,7 @@ for language in languages:
 
 print("Datasets are ready")
 
+# In[ ]:
 pool = mp.Pool(processes=(mp.cpu_count()))
 results = pool.map(hyperparameter_sampling, buckets(
     datasets, ceil(len(datasets)/(mp.cpu_count()))))
