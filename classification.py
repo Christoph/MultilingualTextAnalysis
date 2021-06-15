@@ -131,7 +131,7 @@ def train_classifiers(params):
     """Train the classifiers on all datasets."""
     # Create result dataframe
     out = pd.DataFrame(
-        columns=["Dataset", "Classifier", "Accuracy", "F1", "Precision", "Recall"])
+        columns=["Dataset", "Classifier", "ModelParams", "Accuracy", "F1", "Precision", "Recall"])
 
     for model_type, all_languages in params.items():
         print("Classifier: ", str(model_type))
@@ -230,7 +230,7 @@ def train_classifiers(params):
                         clf_f1 = np.array(f1_scores).mean()
 
                         out = out.append(pd.DataFrame(
-                            [[dataset_name, model_type, clf_acc, clf_f1, clf_pre, clf_rec]], columns=out.columns), ignore_index=True)
+                            [[dataset_name, model_type, str(model_params), clf_acc, clf_f1, clf_pre, clf_rec]], columns=out.columns), ignore_index=True)
 
     return out
 
@@ -403,7 +403,7 @@ best_classifier_params = {"Random Forest": best_classifiers_rm,
 # Single threaded version.
 # Be careful: this might take very long!
 output = train_classifiers(best_classifier_params)
-output.to_csv(('results_best_.csv'), index=False)
+output.to_csv('results_best_TEST.csv', index=False)
 
 print('DONE')
 
