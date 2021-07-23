@@ -1,9 +1,3 @@
-
-# coding: utf-8
-
-# In[77]:
-# Import all used python libraries.
-
 import random
 from keras import models
 from keras.layers import Dropout, Dense
@@ -19,6 +13,7 @@ from sklearn.metrics import precision_recall_fscore_support
 from sklearn.feature_selection import SelectKBest, f_classif
 import multiprocessing as mp
 from math import ceil
+import getpass
 
 # In[78]:
 # Load all used functions.
@@ -131,7 +126,7 @@ def train_classifiers(params):
     """Train the classifiers on all datasets."""
     # Create result dataframe
     out = pd.DataFrame(
-        columns=["Dataset", "Classifier", "ModelParams", "Accuracy", "F1", "Precision", "Recall"])
+        columns=["Dataset", "Classifier", "Accuracy", "F1", "Precision", "Recall"])
 
     for model_type, all_languages in params.items():
         print("Classifier: ", str(model_type))
@@ -147,7 +142,7 @@ def train_classifiers(params):
                     dataset_name = dataset[0]
                     data = dataset[1]
                     y = np.array(dataset[2])
-                    skf = StratifiedKFold(n_splits=4)
+                    skf = StratifiedKFold(n_splits=3)
                     split_indices = []
                     print(dataset_name)
 
@@ -230,17 +225,15 @@ def train_classifiers(params):
                         clf_f1 = np.array(f1_scores).mean()
 
                         out = out.append(pd.DataFrame(
-                            [[dataset_name, model_type, str(model_params), clf_acc, clf_f1, clf_pre, clf_rec]], columns=out.columns), ignore_index=True)
+                            [[dataset_name, model_type, clf_acc, clf_f1, clf_pre, clf_rec]], columns=out.columns), ignore_index=True)
 
     return out
 
 
 def _get_last_layer_units_and_activation(num_classes):
     """Gets the # units and activation function for the last network layer.
-
     # Arguments
         num_classes: int, number of classes.
-
     # Returns
         units, activation values.
     """
@@ -257,14 +250,12 @@ def _get_last_layer_units_and_activation(num_classes):
 
 def mlp_model(layers, units, dropout_rate, input_shape, num_classes):
     """Creates an instance of a multi-layer perceptron model.
-
     # Arguments
         layers: int, number of `Dense` layers in the model.
         units: int, output dimension of the layers.
         dropout_rate: float, percentage of input to drop at Dropout layers.
         input_shape: tuple, shape of input to the model.
         num_classes: int, number of output classes.
-
     # Returns
         An MLP model instance.
     """
@@ -285,7 +276,7 @@ def mlp_model(layers, units, dropout_rate, input_shape, num_classes):
 # In[79]:
 # Prepare all datasets.
 # Be careful this step can take a considerable amount of time.
-SUB_SAMPLE_RERUNS = 5
+SUB_SAMPLE_RERUNS = 3
 TFIDF = {
     'ngram_range': (1, 2),
     'dtype': 'int32',
@@ -295,7 +286,9 @@ TFIDF = {
     'min_df': 2,
 }
 
-TRAIN_TEST_PATH = 'data/articles_dictionary_annotated_'
+usr = getpass.getuser()
+
+TRAIN_TEST_PATH = f'/Users/{usr}/ucloud/Shared/Multilingual Machine Learning/data/develop_and_test/articles_dictionary_annotated_'
 SAMPLING = [100, 150, 200, 250, 300, 350,
             400, 450, 500, 600, 700, 800, 900, 1000]
 
@@ -306,83 +299,99 @@ SAMPLING = [100, 150, 200, 250, 300, 350,
 
 
 # In[79]
-best_classifiers_rm = {'de': {'d_fr_eco': {"n_estimators": 100, "criterion": "entropy", "top_k_words": 10000},
-                              'd_fr_lab': {"n_estimators": 300, "criterion": "gini", "top_k_words": 10000},
-                              'd_fr_sec': {"n_estimators": 50, "criterion": "gini", "top_k_words": 20000},
-                              'd_fr_wel': {"n_estimators": 300, "criterion": "entropy", "top_k_words": 30000}},
-                       'es': {'d_fr_eco': {"n_estimators": 300, "criterion": "entropy", "top_k_words": 30000},
-                              'd_fr_lab': {"n_estimators": 300, "criterion": "entropy", "top_k_words": 10000},
-                              'd_fr_sec': {"n_estimators": 100, "criterion": "entropy", "top_k_words": 20000},
-                              'd_fr_wel': {"n_estimators": 200, "criterion": "entropy", "top_k_words": 30000}},
-                       'pl': {'d_fr_eco': {"n_estimators": 200, "criterion": "gini", "top_k_words": 20000},
-                              'd_fr_lab': {"n_estimators": 100, "criterion": "gini", "top_k_words": 20000},
-                              'd_fr_sec': {"n_estimators": 300, "criterion": "gini", "top_k_words": 30000},
-                              'd_fr_wel': {"n_estimators": 200, "criterion": "entropy", "top_k_words": 30000}},
-                       'ro': {'d_fr_eco': {"n_estimators": 100, "criterion": "gini", "top_k_words": 20000},
-                              'd_fr_lab': {"n_estimators": 200, "criterion": "entropy", "top_k_words": 10000},
-                              'd_fr_sec': {"n_estimators": 300, "criterion": "gini", "top_k_words": 20000},
-                              'd_fr_wel': {"n_estimators": 200, "criterion": "gini", "top_k_words": 10000}},
-                       'sv': {'d_fr_eco': {"n_estimators": 300, "criterion": "entropy", "top_k_words": 30000},
-                              'd_fr_lab': {"n_estimators": 300, "criterion": "gini", "top_k_words": 10000},
-                              'd_fr_sec': {"n_estimators": 300, "criterion": "entropy", "top_k_words": 20000},
-                              'd_fr_wel': {"n_estimators": 200, "criterion": "entropy", "top_k_words": 10000}},
-                       'en': {'d_fr_eco': {"n_estimators": 200, "criterion": "entropy", "top_k_words": 30000},
-                              'd_fr_lab': {"n_estimators": 300, "criterion": "entropy", "top_k_words": 20000},
-                              'd_fr_sec': {"n_estimators": 300, "criterion": "entropy", "top_k_words": 10000},
-                              'd_fr_wel': {"n_estimators": 300, "criterion": "gini", "top_k_words": 10000}}}
 
-best_classifiers_svm = {'de': {'d_fr_eco': {"C": 5, "kernel": "rbf", "top_k_words": 20000},
-                               'd_fr_lab': {"C": 5, "kernel": "rbf", "top_k_words": 30000},
-                               'd_fr_sec': {"C": 1, "kernel": "rbf", "top_k_words": 20000},
-                               'd_fr_wel': {"C": 5, "kernel": "rbf", "top_k_words": 30000}},
-                        'es': {'d_fr_eco': {"C": 5, "kernel": "rbf", "top_k_words": 30000},
-                               'd_fr_lab': {"C": 3, "kernel": "rbf", "top_k_words": 30000},
-                               'd_fr_sec': {"C": 3, "kernel": "rbf", "top_k_words": 20000},
-                               'd_fr_wel': {"C": 3, "kernel": "rbf", "top_k_words": 30000}},
-                        'pl': {'d_fr_eco': {"C": 5, "kernel": "linear", "top_k_words": 30000},
-                               'd_fr_lab': {"C": 3, "kernel": "sigimoid", "top_k_words": 10000},
-                               'd_fr_sec': {"C": 5, "kernel": "rbf", "top_k_words": 10000},
-                               'd_fr_wel': {"C": 3, "kernel": "sigimoid", "top_k_words": 20000}},
-                        'ro': {'d_fr_eco': {"C": 3, "kernel": "sigimoid", "top_k_words": 20000},
-                               'd_fr_lab': {"C": 5, "kernel": "sigimoid", "top_k_words": 20000},
-                               'd_fr_sec': {"C": 5, "kernel": "sigimoid", "top_k_words": 30000},
-                               'd_fr_wel': {"C": 5, "kernel": "sigimoid", "top_k_words": 20000}},
-                        'sv': {'d_fr_eco': {"C": 5, "kernel": "linear", "top_k_words": 30000},
-                               'd_fr_lab': {"C": 5, "kernel": "rbf", "top_k_words": 10000},
-                               'd_fr_sec': {"C": 3, "kernel": "linear", "top_k_words": 30000},
-                               'd_fr_wel': {"C": 5, "kernel": "linear", "top_k_words": 30000}},
-                        'en': {'d_fr_eco': {"C": 5, "kernel": "linear", "top_k_words": 30000},
-                               'd_fr_lab': {"C": 5, "kernel": "rbf", "top_k_words": 30000},
-                               'd_fr_sec': {"C": 3, "kernel": "rbf", "top_k_words": 10000},
-                               'd_fr_wel': {"C": 5, "kernel": "linear", "top_k_words": 30000}}}
+best_classifiers_rm = {'de':{'d_fr_eco':{"n_estimators": 100, "criterion": "entropy", "top_k_words": 10000}, 
+                             'd_fr_lab':{"n_estimators": 300, "criterion": "gini", "top_k_words": 10000}, 
+                             'd_fr_sec':{"n_estimators": 50, "criterion": "gini", "top_k_words": 20000}, 
+                             'd_fr_wel':{"n_estimators": 300, "criterion": "entropy", "top_k_words": 30000}}, 
+                       'es':{'d_fr_eco':{"n_estimators": 300, "criterion": "entropy", "top_k_words":30000}, 
+                             'd_fr_lab':{"n_estimators": 300, "criterion": "entropy", "top_k_words":10000}, 
+                             'd_fr_sec':{"n_estimators": 100, "criterion": "entropy", "top_k_words":20000}, 
+                             'd_fr_wel':{"n_estimators": 200, "criterion": "entropy", "top_k_words":30000}}, 
+                       'pl':{'d_fr_eco':{"n_estimators": 200, "criterion": "gini", "top_k_words":20000}, 
+                             'd_fr_lab':{"n_estimators": 100, "criterion": "gini", "top_k_words":20000}, 
+                             'd_fr_sec':{"n_estimators": 300, "criterion": "gini", "top_k_words":30000}, 
+                             'd_fr_wel':{"n_estimators": 200, "criterion": "entropy", "top_k_words":30000}}, 
+                       'ro':{'d_fr_eco':{"n_estimators": 100, "criterion": "gini", "top_k_words":20000}, 
+                             'd_fr_lab':{"n_estimators": 200, "criterion": "entropy", "top_k_words":10000}, 
+                             'd_fr_sec':{"n_estimators": 300, "criterion": "gini", "top_k_words":20000}, 
+                             'd_fr_wel':{"n_estimators": 200, "criterion": "gini", "top_k_words":10000}}, 
+                       'sv':{'d_fr_eco':{"n_estimators": 300, "criterion": "entropy", "top_k_words":30000}, 
+                             'd_fr_lab':{"n_estimators": 300, "criterion": "gini", "top_k_words":10000}, 
+                             'd_fr_sec':{"n_estimators": 300, "criterion": "entropy", "top_k_words":20000}, 
+                             'd_fr_wel':{"n_estimators": 200, "criterion": "entropy", "top_k_words":10000}}, 
+                       'uk':{'d_fr_eco':{"n_estimators": 200, "criterion": "entropy", "top_k_words":30000}, 
+                             'd_fr_lab':{"n_estimators": 300, "criterion": "entropy", "top_k_words":20000}, 
+                             'd_fr_sec':{"n_estimators": 300, "criterion": "entropy", "top_k_words":10000}, 
+                             'd_fr_wel':{"n_estimators": 300, "criterion": "gini", "top_k_words":10000}},
+                       'hu':{'d_fr_eco':{"n_estimators": 300, "criterion": "gini", "top_k_words":30000}, 
+                             'd_fr_lab':{"n_estimators": 300, "criterion": "entropy", "top_k_words":10000}, 
+                             'd_fr_sec':{"n_estimators": 300, "criterion": "entropy", "top_k_words":10000}, 
+                             'd_fr_wel':{"n_estimators": 200, "criterion": "gini", "top_k_words":10000}}}
 
-best_classifiers_mlp = {'de': {'d_fr_eco': {"hidden_layers": 2, "hidden_units": 16, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words": 20000},
-                               'd_fr_lab': {"hidden_layers": 2, "hidden_units": 16, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words": 30000},
-                               'd_fr_sec': {"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words": 20000},
-                               'd_fr_wel': {"hidden_layers": 2, "hidden_units": 16, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words": 30000}},
-                        'es': {'d_fr_eco': {"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words": 30000},
-                               'd_fr_lab': {"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words": 30000},
-                               'd_fr_sec': {"hidden_layers": 2, "hidden_units": 16, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words": 30000},
-                               'd_fr_wel': {"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words": 30000}},
-                        'pl': {'d_fr_eco': {"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words": 30000},
-                               'd_fr_lab': {"hidden_layers": 3, "hidden_units": 64, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words": 20000},
-                               'd_fr_sec': {"hidden_layers": 3, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words": 30000},
-                               'd_fr_wel': {"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words": 20000}},
-                        'ro': {'d_fr_eco': {"hidden_layers": 3, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words": 30000},
-                               'd_fr_lab': {"hidden_layers": 3, "hidden_units": 64, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words": 20000},
-                               'd_fr_sec': {"hidden_layers": 2, "hidden_units": 16, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words": 30000},
-                               'd_fr_wel': {"hidden_layers": 2, "hidden_units": 64, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words": 20000}},
-                        'sv': {'d_fr_eco': {"hidden_layers": 3, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words": 20000},
-                               'd_fr_lab': {"hidden_layers": 2, "hidden_units": 128, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words": 10000},
-                               'd_fr_sec': {"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words": 30000},
-                               'd_fr_wel': {"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words": 30000}},
-                        'en': {'d_fr_eco': {"hidden_layers": 2, "hidden_units": 16, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words": 30000},
-                               'd_fr_lab': {"hidden_layers": 2, "hidden_units": 16, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words": 30000},
-                               'd_fr_sec': {"hidden_layers": 3, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words": 30000},
-                               'd_fr_wel': {"hidden_layers": 3, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words": 30000}}}
+best_classifiers_svm = {'de':{'d_fr_eco':{"C": 5, "kernel": "rbf", "top_k_words":20000}, 
+                             'd_fr_lab':{"C": 5, "kernel": "rbf", "top_k_words":30000}, 
+                             'd_fr_sec':{"C": 1, "kernel": "rbf", "top_k_words":20000}, 
+                             'd_fr_wel':{"C": 5, "kernel": "rbf", "top_k_words":30000}}, 
+                       'es':{'d_fr_eco':{"C": 5, "kernel": "rbf", "top_k_words":30000}, 
+                             'd_fr_lab':{"C": 3, "kernel": "rbf", "top_k_words":30000}, 
+                             'd_fr_sec':{"C": 3, "kernel": "rbf", "top_k_words":20000}, 
+                             'd_fr_wel':{"C": 3, "kernel": "rbf", "top_k_words":30000}}, 
+                       'pl':{'d_fr_eco':{"C": 5, "kernel": "linear", "top_k_words":30000}, 
+                             'd_fr_lab':{"C": 3, "kernel": "sigmoid", "top_k_words":10000}, 
+                             'd_fr_sec':{"C": 5, "kernel": "rbf", "top_k_words":10000}, 
+                             'd_fr_wel':{"C": 3, "kernel": "sigmoid", "top_k_words":20000}}, 
+                       'ro':{'d_fr_eco':{"C": 3, "kernel": "sigmoid", "top_k_words":20000}, 
+                             'd_fr_lab':{"C": 5, "kernel": "sigmoid", "top_k_words":20000}, 
+                             'd_fr_sec':{"C": 5, "kernel": "sigmoid", "top_k_words":30000}, 
+                             'd_fr_wel':{"C": 5, "kernel": "sigmoid", "top_k_words":20000}}, 
+                       'sv':{'d_fr_eco':{"C": 5, "kernel": "linear", "top_k_words":30000}, 
+                             'd_fr_lab':{"C": 5, "kernel": "rbf", "top_k_words":10000}, 
+                             'd_fr_sec':{"C": 3, "kernel": "linear", "top_k_words":30000}, 
+                             'd_fr_wel':{"C": 5, "kernel": "linear", "top_k_words":30000}}, 
+                       'uk':{'d_fr_eco':{"C": 5, "kernel": "linear", "top_k_words":30000}, 
+                             'd_fr_lab':{"C": 5, "kernel": "rbf", "top_k_words":30000}, 
+                             'd_fr_sec':{"C": 3, "kernel": "rbf", "top_k_words":10000}, 
+                             'd_fr_wel':{"C": 5, "kernel": "linear", "top_k_words":30000}},
+                       'hu':{'d_fr_eco':{"C": 3, "kernel": "sigmoid", "top_k_words":30000}, 
+                             'd_fr_lab':{"C": 3, "kernel": "sigmoid", "top_k_words":30000}, 
+                             'd_fr_sec':{"C": 5, "kernel": "linear", "top_k_words":30000}, 
+                             'd_fr_wel':{"C": 3, "kernel": "sigmoid", "top_k_words":20000}}}
 
-best_classifier_params = {"Random Forest": best_classifiers_rm,
-                          "SVM": best_classifiers_svm, "MLP": best_classifiers_mlp}
+best_classifiers_mlp = {'de':{'d_fr_eco':{"hidden_layers": 2, "hidden_units": 16, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":20000}, 
+                             'd_fr_lab':{"hidden_layers": 2, "hidden_units": 16, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":30000}, 
+                             'd_fr_sec':{"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":20000}, 
+                             'd_fr_wel':{"hidden_layers": 2, "hidden_units": 16, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":30000}}, 
+                       'es':{'d_fr_eco':{"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words":30000}, 
+                             'd_fr_lab':{"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words":30000}, 
+                             'd_fr_sec':{"hidden_layers": 2, "hidden_units": 16, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words":30000}, 
+                             'd_fr_wel':{"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words":30000}}, 
+                       'pl':{'d_fr_eco':{"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":30000}, 
+                             'd_fr_lab':{"hidden_layers": 3, "hidden_units": 64, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":20000}, 
+                             'd_fr_sec':{"hidden_layers": 3, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":30000}, 
+                             'd_fr_wel':{"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":20000}}, 
+                       'ro':{'d_fr_eco':{"hidden_layers": 3, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words":30000}, 
+                             'd_fr_lab':{"hidden_layers": 3, "hidden_units": 64, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words":20000}, 
+                             'd_fr_sec':{"hidden_layers": 2, "hidden_units": 16, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":30000}, 
+                             'd_fr_wel':{"hidden_layers": 2, "hidden_units": 64, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words":20000}}, 
+                       'sv':{'d_fr_eco':{"hidden_layers": 3, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words":20000}, 
+                             'd_fr_lab':{"hidden_layers": 2, "hidden_units": 128, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":10000}, 
+                             'd_fr_sec':{"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words":30000}, 
+                             'd_fr_wel':{"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words":30000}}, 
+                       'uk':{'d_fr_eco':{"hidden_layers": 2, "hidden_units": 16, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":30000}, 
+                             'd_fr_lab':{"hidden_layers": 2, "hidden_units": 16, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":30000}, 
+                             'd_fr_sec':{"hidden_layers": 3, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":30000}, 
+                             'd_fr_wel':{"hidden_layers": 3, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":30000}},
+                       'hu':{'d_fr_eco':{"hidden_layers": 3, "hidden_units": 64, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":30000}, 
+                             'd_fr_lab':{"hidden_layers": 2, "hidden_units": 16, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":30000}, 
+                             'd_fr_sec':{"hidden_layers": 3, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words":30000}, 
+                             'd_fr_wel':{"hidden_layers": 3, "hidden_units": 64, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":20000}}}
+
+# best_classifier_params = {"Random Forest": best_classifiers_rm},
+#                           "SVM": best_classifiers_svm, 
+#                           "MLP": best_classifiers_mlp}
+
+best_classifier_params = {"Random Forest": best_classifiers_rm}
 
 # In[80]:
 # Run all the different dataset and model combinations.
@@ -403,8 +412,6 @@ best_classifier_params = {"Random Forest": best_classifiers_rm,
 # Single threaded version.
 # Be careful: this might take very long!
 output = train_classifiers(best_classifier_params)
-output.to_csv('results_best_TEST.csv', index=False)
+output.to_csv(('results_best_.csv'), index=False)
 
 print('DONE')
-
-# %%
