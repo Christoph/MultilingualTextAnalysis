@@ -5,7 +5,7 @@ Greasing the wheels for comparative communication research: Supervised text clas
 The article is under review at Computational Communication Research (https://computationalcommunication.org/ccr/preprint).
 
 
-The repository contains seven scripts (four for annotation with dictionaries, one for hyperparameter selection, one for classifier selection, and one for model validation), two data files, and three files with results.
+The repository contains seven scripts (four for annotation with dictionaries, one for hyperparameter selection, one for classifier selection, and one for strategy evaluation with manual test data), two data files, and three files with results.
 
 
 ### Dictionary Annotation
@@ -36,8 +36,8 @@ sampling = [100, 150, 200, 250, 300, 350,
 - Lines 309 - 316 train the classification models on all sampled datasets using multithreading.
 (Again be careful this step can take very long)
 
-### Validation
-The validation.py file was used to validate the best classification algorithm using separate validation data.
+### Classifier evaluation with separate manually labeled test data
+The manual_test.py file was used to evaluate the best classifiers using separate manually annotated test data.
 
 Structure:
 - Everything before line 233 loads libraries and functions.
@@ -53,9 +53,9 @@ sampling = [100, 150, 200, 250, 300, 350,
 
 ### Data
 
-The articles_dictionary_annotated_train_test_set.csv file is the separate validation data. It was automatically annotated with the four dictionaries.
+The articles_dictionary_annotated_train_test_set.csv file includes training and test data. It was automatically annotated with the four dictionaries.
 
-The articles_manual_annotated_validation_set.csv file is the sperate validation data. It was manually annotated by native speakers.
+The articles_manual_annotated_test_set.csv file is the separate test data. It was manually annotated by native speakers.
 
 ### Results
 
@@ -63,7 +63,7 @@ The files results_hyperparamter_selection_rm.csv, results_hyperparamter_selectio
 
 The dictionary_training_test_results.csv file includes the results for classfier selection.
 
-The validation_results.csv file the results for validation.
+The manual_test_results.csv file the results for evaluation of training .
 
 
 
