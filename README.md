@@ -19,7 +19,7 @@ were used to annotate the English documents regarding the occurance of the Econo
 
 ### Hyperparameter selection
 
-The .py file was used to identify the best hyperparameters per algorithm for each frame and language.
+The hyperparameter_sampling.py file was used to identify the best hyperparameter per algorithm for each frame and language.
 
 ### Classifier Selection
 The classification.py file was used to compare classification methods by algorithm and number of training documents.
