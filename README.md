@@ -63,7 +63,7 @@ The files results_hyperparamter_selection_rm.csv, results_hyperparamter_selectio
 
 The dictionary_training_test_results.csv file includes the results for classfier selection.
 
-The manual_test_results.csv file the results for evaluation of training .
+The manual_test_results.csv file the results for the testing classifiers which were trained with dictionary annotated date with manually annotated test data.
 
 
 
