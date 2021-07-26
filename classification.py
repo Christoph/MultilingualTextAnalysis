@@ -13,11 +13,6 @@ from sklearn.metrics import precision_recall_fscore_support
 from sklearn.feature_selection import SelectKBest, f_classif
 import multiprocessing as mp
 from math import ceil
-import getpass
-
-# In[78]:
-# Load all used functions.
-
 
 def preprocess_text(text):
     """Remove non-characters and lower case the text"""
@@ -231,12 +226,7 @@ def train_classifiers(params):
 
 
 def _get_last_layer_units_and_activation(num_classes):
-    """Gets the # units and activation function for the last network layer.
-    # Arguments
-        num_classes: int, number of classes.
-    # Returns
-        units, activation values.
-    """
+    """Gets the # units and activation function for the last network layer."""
     # https://developers.google.com/machine-learning/guides/text-classification/step-4
 
     if num_classes == 2:
@@ -249,16 +239,7 @@ def _get_last_layer_units_and_activation(num_classes):
 
 
 def mlp_model(layers, units, dropout_rate, input_shape, num_classes):
-    """Creates an instance of a multi-layer perceptron model.
-    # Arguments
-        layers: int, number of `Dense` layers in the model.
-        units: int, output dimension of the layers.
-        dropout_rate: float, percentage of input to drop at Dropout layers.
-        input_shape: tuple, shape of input to the model.
-        num_classes: int, number of output classes.
-    # Returns
-        An MLP model instance.
-    """
+    """Creates an instance of a multi-layer perceptron model."""    
     # https://developers.google.com/machine-learning/guides/text-classification/step-4
 
     op_units, op_activation = _get_last_layer_units_and_activation(num_classes)
@@ -273,33 +254,7 @@ def mlp_model(layers, units, dropout_rate, input_shape, num_classes):
     return model
 
 
-# In[79]:
-# Prepare all datasets.
-# Be careful this step can take a considerable amount of time.
-SUB_SAMPLE_RERUNS = 3
-TFIDF = {
-    'ngram_range': (1, 2),
-    'dtype': 'int32',
-    'strip_accents': 'unicode',
-    'decode_error': 'replace',
-    'analyzer': 'word',
-    'min_df': 2,
-}
-
-usr = getpass.getuser()
-
-TRAIN_TEST_PATH = f'/Users/{usr}/ucloud/Shared/Multilingual Machine Learning/data/develop_and_test/articles_dictionary_annotated_'
-SAMPLING = [100, 150, 200, 250, 300, 350,
-            400, 450, 500, 600, 700, 800, 900, 1000]
-
-# for language in languages:
-#     print(language)
-#     sample_datasets(datasets, language, targets,
-#                     sampling, tfidf_parameters, TOP_K_WORDS, SUB_SAMPLE_RERUNS)
-
-
-# In[79]
-
+# best classifier parameters
 best_classifiers_rm = {'de':{'d_fr_eco':{"n_estimators": 100, "criterion": "entropy", "top_k_words": 10000}, 
                              'd_fr_lab':{"n_estimators": 300, "criterion": "gini", "top_k_words": 10000}, 
                              'd_fr_sec':{"n_estimators": 50, "criterion": "gini", "top_k_words": 20000}, 
@@ -387,31 +342,28 @@ best_classifiers_mlp = {'de':{'d_fr_eco':{"hidden_layers": 2, "hidden_units": 16
                              'd_fr_sec':{"hidden_layers": 3, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words":30000}, 
                              'd_fr_wel':{"hidden_layers": 3, "hidden_units": 64, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":20000}}}
 
-# best_classifier_params = {"Random Forest": best_classifiers_rm},
-#                           "SVM": best_classifiers_svm, 
-#                           "MLP": best_classifiers_mlp}
+best_classifier_params = {"Random Forest": best_classifiers_rm,
+                          "SVM": best_classifiers_svm, 
+                          "MLP": best_classifiers_mlp}
 
-best_classifier_params = {"Random Forest": best_classifiers_rm}
+# Settings
+SUB_SAMPLE_RERUNS = 3
+TFIDF = {
+    'ngram_range': (1, 2),
+    'dtype': 'int32',
+    'strip_accents': 'unicode',
+    'decode_error': 'replace',
+    'analyzer': 'word',
+    'min_df': 2,
+}
 
-# In[80]:
-# Run all the different dataset and model combinations.
-# Fast version using data parallelism.
-# Use this cell OR the cell below.
+TRAIN_TEST_PATH = f'/articles_dictionary_annotated_'
+SAMPLING = [100, 150, 200, 250, 300, 350,
+            400, 450, 500, 600, 700, 800, 900, 1000]
 
-# pool = mp.Pool(processes=(mp.cpu_count()))
-# results = pool.map(train_classifiers, buckets(
-#     datasets, ceil(len(datasets)/(mp.cpu_count()))))
-# pool.close()
-# pool.join()
-
-# output = pd.concat(results)
-# output.to_csv(('results_classifications.csv'), index=False)
-
-# print('DONE')
-# In[81]:
 # Single threaded version.
 # Be careful: this might take very long!
 output = train_classifiers(best_classifier_params)
-output.to_csv(('results_best_.csv'), index=False)
+output.to_csv(('results_best.csv'), index=False)
 
 print('DONE')
