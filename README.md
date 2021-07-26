@@ -22,7 +22,8 @@ The hyperparameter_selection.py file was used to identify the best hyperparamete
 
 Structure:
 - Everything before line 239 loads libraries and defines functions.
-- Lines 239 - 334 define parameters and settings for the three different classifiers that are varied as well as preprocessing steps (tfidf) and sampling.
+- Lines 239 - 314 define parameters for the three different classifiers that are varied.
+- Lines 316 - 334 define constant settings for preprocessing (tfidf; topk words were manually varied between 10,000 and 30,000 in each run) and sampling (kfold split, max number of observations).
 - Lines 336 - 339 sample the data based on the sampling parameters.
 - Lines 343 - 350 train classifiers and return information on the performance of each setting.
 
@@ -30,19 +31,21 @@ Structure:
 The classification.py file was used to compare classification methods by algorithm and number of training documents.
 
 Structure:
-- Everything before line 245 loads libraries and defines functions.
-- Lines 246 - 275 define the best performing settings for the MLP classifier for each language and target
-- Lines 275 - 292 define the parameters for the preprocessing and sampling procedure
-- Lines 296 - 297 sample the datasets based on the sampling parameters, trains classifiers according to the predefined settings on the sampled datasets and returns the performance scores.
+- Everything before line 254 loads libraries and defines functions.
+- Lines 258 - 343 define the best performing settings for each classifier, language, and target as dervied from the hyperparameter sampling procedure.
+- Lines 350 - 358 define the constant parameters for the subsample reruns and the preprocessing (tfidf).
+- Lines 361 - 362 define the varied sampling settings concerning the number of observations used to train the classifiers
+- Lines 366 - 367 sample the datasets based on the sampling parameters, trains classifiers according to the predefined settings on the sampled datasets and returns the performance scores.
 
 ### Additional Classifier evaluation with separate manually labeled test data
 The classifier_evaluation.py file was used to evaluate the best classifiers using separate manually annotated test data.
 
 Structure:
-- Everything before line 264 loads libraries and defines functions.
-- Lines 265 - 354 define the best performing settings for each classifier, language, and target as dervied from the hyperparameter sampling procedure
-- Lines 355 - 317 define the parameters for the preprocessing and sampling procedure
-- Lines 375 - 376 train the MLP models on the sampled datasets and evaluate their performances using manually coded datasets.
+- Everything before line 246 loads libraries and defines functions.
+- Lines 246 - 273 define the best performing settings for the MLP classifier for each language and target.
+- Lines 277 - 285 define the constant parameters for the subsample reruns and the preprocessing (tfidf).
+- Lines 291 - 292 define the varied sampling settings concerning the number of observations used to train the classifiers
+- Lines 296 - 297 train the MLP models on the sampled datasets and evaluate their performances using manually coded datasets.
 
 ### Data
 
