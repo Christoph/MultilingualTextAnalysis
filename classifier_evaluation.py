@@ -167,51 +167,32 @@ def train_classifiers(params):
                     y_train, y_test = y, val_y
                     y_pred = None
 
-                    if model_type == 'MLP':
-                        # Create model instance.
-                        model = mlp_model(layers=model_params['hidden_layers'], units=model_params['hidden_units'], dropout_rate=model_params['dropout_rate'],
-                                            input_shape=X_train.shape[1:], num_classes=2)
-                        optimizer = tf.keras.optimizers.Adam(
-                            lr=model_params['learning_rate'])
-                        model.compile(optimizer=optimizer,
-                                        loss='binary_crossentropy', metrics=['acc'])
+                    # Create model instance.
+                    model = mlp_model(layers=model_params['hidden_layers'], units=model_params['hidden_units'], dropout_rate=model_params['dropout_rate'],
+                                        input_shape=X_train.shape[1:], num_classes=2)
+                    optimizer = tf.keras.optimizers.Adam(
+                        lr=model_params['learning_rate'])
+                    model.compile(optimizer=optimizer,
+                                    loss='binary_crossentropy', metrics=['acc'])
 
-                        # Stop training is validation loss doesnt decrease for 3 steps
-                        callbacks = [tf.keras.callbacks.EarlyStopping(
-                            monitor='val_loss', patience=3)]
+                    # Stop training is validation loss doesnt decrease for 3 steps
+                    callbacks = [tf.keras.callbacks.EarlyStopping(
+                        monitor='val_loss', patience=3)]
 
-                        # Train and validate model.
-                        history = model.fit(
-                            X_train,
-                            y_train,
-                            epochs=model_params['epochs'],
-                            callbacks=callbacks,
-                            validation_data=(X_test, y_test),
-                            verbose=0,
-                            batch_size=512)
+                    # Train and validate model.
+                    history = model.fit(
+                        X_train,
+                        y_train,
+                        epochs=model_params['epochs'],
+                        callbacks=callbacks,
+                        validation_data=(X_test, y_test),
+                        verbose=0,
+                        batch_size=512)
 
-                        acc_scores.append(
-                            history.history['val_acc'][-1])
-                        y_pred = [round(a[0])
-                                    for a in model.predict(X_test)]
-                    elif model_type == 'SVM':
-                        # Linear SVM
-                        model = SVC(
-                            C=model_params['C'], kernel=model_params['kernel'])
-
-                        model.fit(X_train, y_train)
-
-                        acc_scores.append(model.score(X_test, y_test))
-                        y_pred = model.predict(X_test)
-                    elif model_type == 'Random Forest':
-                        # Random Forest Classifier
-                        model = RandomForestClassifier(
-                            criterion=model_params['criterion'], n_estimators=model_params['n_estimators'])
-
-                        model.fit(X_train, y_train)
-
-                        acc_scores.append(model.score(X_test, y_test))
-                        y_pred = model.predict(X_test)
+                    acc_scores.append(
+                        history.history['val_acc'][-1])
+                    y_pred = [round(a[0])
+                                for a in model.predict(X_test)]
 
                     # Compute the results
                     prfs = precision_recall_fscore_support(
@@ -262,64 +243,6 @@ def mlp_model(layers, units, dropout_rate, input_shape, num_classes):
     return model
 
 # best classifier parameters
-best_classifiers_rm = {'de':{'d_fr_eco':{"n_estimators": 100, "criterion": "entropy", "top_k_words": 10000}, 
-                             'd_fr_lab':{"n_estimators": 300, "criterion": "gini", "top_k_words": 10000}, 
-                             'd_fr_sec':{"n_estimators": 50, "criterion": "gini", "top_k_words": 20000}, 
-                             'd_fr_wel':{"n_estimators": 300, "criterion": "entropy", "top_k_words": 30000}}, 
-                       'es':{'d_fr_eco':{"n_estimators": 300, "criterion": "entropy", "top_k_words":30000}, 
-                             'd_fr_lab':{"n_estimators": 300, "criterion": "entropy", "top_k_words":10000}, 
-                             'd_fr_sec':{"n_estimators": 100, "criterion": "entropy", "top_k_words":20000}, 
-                             'd_fr_wel':{"n_estimators": 200, "criterion": "entropy", "top_k_words":30000}}, 
-                       'pl':{'d_fr_eco':{"n_estimators": 200, "criterion": "gini", "top_k_words":20000}, 
-                             'd_fr_lab':{"n_estimators": 100, "criterion": "gini", "top_k_words":20000}, 
-                             'd_fr_sec':{"n_estimators": 300, "criterion": "gini", "top_k_words":30000}, 
-                             'd_fr_wel':{"n_estimators": 200, "criterion": "entropy", "top_k_words":30000}}, 
-                       'ro':{'d_fr_eco':{"n_estimators": 100, "criterion": "gini", "top_k_words":20000}, 
-                             'd_fr_lab':{"n_estimators": 200, "criterion": "entropy", "top_k_words":10000}, 
-                             'd_fr_sec':{"n_estimators": 300, "criterion": "gini", "top_k_words":20000}, 
-                             'd_fr_wel':{"n_estimators": 200, "criterion": "gini", "top_k_words":10000}}, 
-                       'sv':{'d_fr_eco':{"n_estimators": 300, "criterion": "entropy", "top_k_words":30000}, 
-                             'd_fr_lab':{"n_estimators": 300, "criterion": "gini", "top_k_words":10000}, 
-                             'd_fr_sec':{"n_estimators": 300, "criterion": "entropy", "top_k_words":20000}, 
-                             'd_fr_wel':{"n_estimators": 200, "criterion": "entropy", "top_k_words":10000}}, 
-                       'uk':{'d_fr_eco':{"n_estimators": 200, "criterion": "entropy", "top_k_words":30000}, 
-                             'd_fr_lab':{"n_estimators": 300, "criterion": "entropy", "top_k_words":20000}, 
-                             'd_fr_sec':{"n_estimators": 300, "criterion": "entropy", "top_k_words":10000}, 
-                             'd_fr_wel':{"n_estimators": 300, "criterion": "gini", "top_k_words":10000}},
-                       'hu':{'d_fr_eco':{"n_estimators": 300, "criterion": "gini", "top_k_words":30000}, 
-                             'd_fr_lab':{"n_estimators": 300, "criterion": "entropy", "top_k_words":10000}, 
-                             'd_fr_sec':{"n_estimators": 300, "criterion": "entropy", "top_k_words":10000}, 
-                             'd_fr_wel':{"n_estimators": 200, "criterion": "gini", "top_k_words":10000}}}
-
-best_classifiers_svm = {'de':{'d_fr_eco':{"C": 5, "kernel": "rbf", "top_k_words":20000}, 
-                             'd_fr_lab':{"C": 5, "kernel": "rbf", "top_k_words":30000}, 
-                             'd_fr_sec':{"C": 1, "kernel": "rbf", "top_k_words":20000}, 
-                             'd_fr_wel':{"C": 5, "kernel": "rbf", "top_k_words":30000}}, 
-                       'es':{'d_fr_eco':{"C": 5, "kernel": "rbf", "top_k_words":30000}, 
-                             'd_fr_lab':{"C": 3, "kernel": "rbf", "top_k_words":30000}, 
-                             'd_fr_sec':{"C": 3, "kernel": "rbf", "top_k_words":20000}, 
-                             'd_fr_wel':{"C": 3, "kernel": "rbf", "top_k_words":30000}}, 
-                       'pl':{'d_fr_eco':{"C": 5, "kernel": "linear", "top_k_words":30000}, 
-                             'd_fr_lab':{"C": 3, "kernel": "sigmoid", "top_k_words":10000}, 
-                             'd_fr_sec':{"C": 5, "kernel": "rbf", "top_k_words":10000}, 
-                             'd_fr_wel':{"C": 3, "kernel": "sigmoid", "top_k_words":20000}}, 
-                       'ro':{'d_fr_eco':{"C": 3, "kernel": "sigmoid", "top_k_words":20000}, 
-                             'd_fr_lab':{"C": 5, "kernel": "sigmoid", "top_k_words":20000}, 
-                             'd_fr_sec':{"C": 5, "kernel": "sigmoid", "top_k_words":30000}, 
-                             'd_fr_wel':{"C": 5, "kernel": "sigmoid", "top_k_words":20000}}, 
-                       'sv':{'d_fr_eco':{"C": 5, "kernel": "linear", "top_k_words":30000}, 
-                             'd_fr_lab':{"C": 5, "kernel": "rbf", "top_k_words":10000}, 
-                             'd_fr_sec':{"C": 3, "kernel": "linear", "top_k_words":30000}, 
-                             'd_fr_wel':{"C": 5, "kernel": "linear", "top_k_words":30000}}, 
-                       'uk':{'d_fr_eco':{"C": 5, "kernel": "linear", "top_k_words":30000}, 
-                             'd_fr_lab':{"C": 5, "kernel": "rbf", "top_k_words":30000}, 
-                             'd_fr_sec':{"C": 3, "kernel": "rbf", "top_k_words":10000}, 
-                             'd_fr_wel':{"C": 5, "kernel": "linear", "top_k_words":30000}},
-                       'hu':{'d_fr_eco':{"C": 3, "kernel": "sigmoid", "top_k_words":30000}, 
-                             'd_fr_lab':{"C": 3, "kernel": "sigmoid", "top_k_words":30000}, 
-                             'd_fr_sec':{"C": 5, "kernel": "linear", "top_k_words":30000}, 
-                             'd_fr_wel':{"C": 3, "kernel": "sigmoid", "top_k_words":20000}}}
-
 best_classifiers_mlp = {'de':{'d_fr_eco':{"hidden_layers": 2, "hidden_units": 16, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":20000}, 
                              'd_fr_lab':{"hidden_layers": 2, "hidden_units": 16, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":30000}, 
                              'd_fr_sec':{"hidden_layers": 2, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":20000}, 
@@ -349,9 +272,7 @@ best_classifiers_mlp = {'de':{'d_fr_eco':{"hidden_layers": 2, "hidden_units": 16
                              'd_fr_sec':{"hidden_layers": 3, "hidden_units": 32, "dropout_rate": 0.2, "learning_rate": 1e-3, "epochs": 100, "top_k_words":30000}, 
                              'd_fr_wel':{"hidden_layers": 3, "hidden_units": 64, "dropout_rate": 0.2, "learning_rate": 1e-2, "epochs": 100, "top_k_words":20000}}}
 
-best_classifier_params = {"Random Forest": best_classifiers_rm,
-                          "SVM": best_classifiers_svm, 
-                          "MLP": best_classifiers_mlp}
+best_classifier_params = {"MLP": best_classifiers_mlp}
 # Settings
 SUB_SAMPLE_RERUNS = 3
 TFIDF = {
@@ -373,6 +294,6 @@ SAMPLING = [100, 150, 200, 250, 300, 350,
 # Single threaded version.
 # Be careful: this might take very long!
 output = train_classifiers(best_classifier_params)
-output.to_csv(('results_validation_RM.csv'), index=False)
+output.to_csv(('results_evaluation_MLP.csv'), index=False)
 
 print('DONE')
