@@ -17,39 +17,32 @@ Welfare_Dictionary_Annotation.R\
 
 were used to annotate the English documents regarding the occurance of the Economy & budget, Labor market, Security, and Welfare frame. 
 
-
-### Classifier Selection
-
+### Hyperparameter selection
 The hyperparameter_selection.py file was used to identify the best hyperparameter per algorithm for each frame and language.
 
-The classification.py file was then used to compare classifier performance by algorithm and number of training documents.
+Structure:
+- Everything before line 239 loads libraries and defines functions.
+- Lines 239 - 334 define parameters and settings for the three different classifiers that are varied as well as preprocessing steps (tfidf) and sampling.
+- Lines 336 - 339 sample the data based on the sampling parameters.
+- Lines 343 - 350 train classifiers and return information on the performance of each setting.
+
+### Classifier Selection
+The classification.py file was used to compare classification methods by algorithm and number of training documents.
 
 Structure:
-- Everything before line 280 loads libraries and functions.
-- Lines 281 - 303 sample the datasets based on the sampling parameters. 
-Sampling Parameters:
-languages = ['de', 'es', 'pl', 'ro', 'sv', 'en']
-targets = ['d_fr_eco', 'd_fr_lab', 'd_fr_sec', 'd_fr_wel']
-sampling = [100, 150, 200, 250, 300, 350,
-            400, 450, 500, 600, 700, 800, 900, 1000]
-(Be careful if you use all parameters it will take a lot of time.)
-- Lines 309 - 316 train the classification models on all sampled datasets using multithreading.
-(Again be careful this step can take very long)
+- Everything before line 245 loads libraries and defines functions.
+- Lines 246 - 275 define the best performing settings for the MLP classifier for each language and target
+- Lines 275 - 292 define the parameters for the preprocessing and sampling procedure
+- Lines 296 - 297 sample the datasets based on the sampling parameters, trains classifiers according to the predefined settings on the sampled datasets and returns the performance scores.
 
 ### Classifier evaluation with separate manually labeled test data
-The manual_test.py file was used to evaluate the best classifiers using separate manually annotated test data.
+The classifier_evaluation.py file was used to evaluate the best classifiers using separate manually annotated test data.
 
 Structure:
-- Everything before line 233 loads libraries and functions.
-- Lines 234 - 257 sample the datasets based on the sampling parameters. 
-Sampling Parameters:
-languages = ['de', 'es', 'pl', 'ro', 'sv', 'en']
-targets = ['d_fr_eco', 'd_fr_lab', 'd_fr_sec', 'd_fr_wel']
-sampling = [100, 150, 200, 250, 300, 350,
-            400, 450, 500, 600, 700, 800, 900, 1000]
-(Be careful if you use all parameters it will take a lot of time.)
-- Lines 264 - 272 train the MLP model on the sampled datasets and validate using the validation datasets.
-(Again be careful this step can take very long)
+- Everything before line 264 loads libraries and defines functions.
+- Lines 265 - 354 define the best performing settings for each classifier, language, and target as dervied from the hyperparameter sampling procedure
+- Lines 355 - 317 define the parameters for the preprocessing and sampling procedure
+- Lines 375 - 376 train the MLP models on the sampled datasets and evaluate their performances using manually coded datasets.
 
 ### Data
 
