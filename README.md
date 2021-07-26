@@ -5,7 +5,7 @@ Greasing the wheels for comparative communication research: Supervised text clas
 The article is under review at Computational Communication Research (https://computationalcommunication.org/ccr/preprint).
 
 
-The repository contains seven scripts (four for annotation with dictionaries, one for hyperparameter selection, one for classifier selection, and one for strategy evaluation with manual test data), two data files, and five files with results.
+The repository contains seven scripts (four for annotation with dictionaries, one for hyperparameter selection, one for classifier selection, and one for additional classifier evaluation with manual test data), two data files, and five files with results.
 
 
 ### Dictionary Annotation
@@ -35,7 +35,7 @@ Structure:
 - Lines 275 - 292 define the parameters for the preprocessing and sampling procedure
 - Lines 296 - 297 sample the datasets based on the sampling parameters, trains classifiers according to the predefined settings on the sampled datasets and returns the performance scores.
 
-### Classifier evaluation with separate manually labeled test data
+### Additional Classifier evaluation with separate manually labeled test data
 The classifier_evaluation.py file was used to evaluate the best classifiers using separate manually annotated test data.
 
 Structure:
