@@ -1,3 +1,4 @@
+# coding: utf-8
 import random
 from keras import models
 from keras.layers import Dropout, Dense
@@ -11,8 +12,7 @@ from sklearn.svm import SVC
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.feature_selection import SelectKBest, f_classif
-import multiprocessing as mp
-from math import ceil
+
 
 def preprocess_text(text):
     """Remove non-characters and lower case the text"""
