@@ -19,7 +19,7 @@ were used to annotate the English documents regarding the occurance of the Econo
 
 ### Hyperparameter selection
 
-The hyperparameter_sampling.py file was used to identify the best hyperparameter per algorithm for each frame and language.
+The hyperparameter_selection.py file was used to identify the best hyperparameter per algorithm for each frame and language.
 
 ### Classifier Selection
 The classification.py file was used to compare classification methods by algorithm and number of training documents.
@@ -59,7 +59,7 @@ The articles_manual_annotated_validation_set.csv file is the sperate validation 
 
 ### Results
 
-The .csv file includes the results for hyperparamter optimization.
+The files results_hyperparamter_selection_rm.csv, results_hyperparamter_selection_svm.csv, and results_hyperparamter_selection_mlp.csv include the results for hyperparamter selection.
 
 The dictionary_training_test_results.csv file includes the results for classfier selection.
 
