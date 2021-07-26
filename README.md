@@ -5,7 +5,7 @@ Greasing the wheels for comparative communication research: Supervised text clas
 The article is under review at Computational Communication Research (https://computationalcommunication.org/ccr/preprint).
 
 
-The repository contains seven scripts (four for annotation with dictionaries, one for hyperparameter selection, one for classifier selection, and one for strategy evaluation with manual test data), two data files, and three files with results.
+The repository contains seven scripts (four for annotation with dictionaries, one for hyperparameter selection, one for classifier selection, and one for strategy evaluation with manual test data), two data files, and five files with results.
 
 
 ### Dictionary Annotation
