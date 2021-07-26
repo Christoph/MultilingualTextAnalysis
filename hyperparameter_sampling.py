@@ -1,7 +1,4 @@
 # coding: utf-8
-
-# In[77]:
-
 import pandas as pd
 import numpy as np
 import re
@@ -29,7 +26,6 @@ from math import ceil
 import tensorflow as tf
 
 
-# In[78]:
 def preprocess_text(text):
     """Remove non-characters and lower case the text"""
     # replace non characers with space and lower case
@@ -48,12 +44,7 @@ def buckets(data, n):
 
 
 def _get_last_layer_units_and_activation(num_classes):
-    """Gets the # units and activation function for the last network layer.
-    # Arguments
-        num_classes: int, number of classes.
-    # Returns
-        units, activation values.
-    """
+    """Gets the # units and activation function for the last network layer."""
     # https://developers.google.com/machine-learning/guides/text-classification/step-4
 
     if num_classes == 2:
@@ -66,16 +57,7 @@ def _get_last_layer_units_and_activation(num_classes):
 
 
 def mlp_model(layers, units, dropout_rate, input_shape, num_classes):
-    """Creates an instance of a multi-layer perceptron model.
-    # Arguments
-        layers: int, number of `Dense` layers in the model.
-        units: int, output dimension of the layers.
-        dropout_rate: float, percentage of input to drop at Dropout layers.
-        input_shape: tuple, shape of input to the model.
-        num_classes: int, number of output classes.
-    # Returns
-        An MLP model instance.
-    """
+    """Creates an instance of a multi-layer perceptron model."""
     # https://developers.google.com/machine-learning/guides/text-classification/step-4
 
     op_units, op_activation = _get_last_layer_units_and_activation(num_classes)
@@ -88,9 +70,6 @@ def mlp_model(layers, units, dropout_rate, input_shape, num_classes):
 
     model.add(Dense(units=op_units, activation=op_activation))
     return model
-
-# # Load data
-# data = pd.read_csv('data/articles_dictionary_annotated_'+language+'.csv')
 
 
 def sample_datasets(datasets, language, targets, tfidf_parameters, sample_reruns):
@@ -157,7 +136,7 @@ def prepare_datasets(data, target, tfidf_parameters, positive_count, negative_co
 
 
 def hyperparameter_sampling(datasets):
-    # Create result dataframe
+    """Train classifiers, return performance data."""
     out = pd.DataFrame(
         columns=["Dataset", "Classifier", "Params", "Accuracy", "F1", "Precision", "Recall"])
 
@@ -257,31 +236,7 @@ def hyperparameter_sampling(datasets):
     return out
 
 
-# %%
 classifications = [
-    # ["DecisionTree", DecisionTreeClassifier, [
-    #     #    {"criterion": "gini", "min_samples_split": 1e-2},
-    #     #    {"criterion": "entropy", "min_samples_split": 1e-2},
-    #     #    {"criterion": "gini", "min_samples_split": 0.05},
-    #     #    {"criterion": "entropy", "min_samples_split": 0.05},
-    #     #    {"criterion": "gini"},
-    #     {"criterion": "entropy"},
-    # ]],
-    # ["AdaBoost", AdaBoostClassifier, [
-    #     {"n_estimators": 25, "learning_rate": 1},
-    #     # {"n_estimators": 25, "learning_rate": 0.5},
-    #     # {"n_estimators": 50, "learning_rate": 1},
-    #     # {"n_estimators": 100, "learning_rate": 1},
-    #     # {"n_estimators": 200, "learning_rate": 1},
-    #     # {"n_estimators": 300, "learning_rate": 1},
-    # ]],
-    # ["GradientBoostingClassifier", GradientBoostingClassifier, [
-    #     #     {"n_estimators": 25},
-    #     # {"n_estimators": 50},
-    #     #     {"n_estimators": 100},
-    #     {"n_estimators": 200},
-    #     # {"n_estimators": 300},
-    # ]],
     ["SVM", SVC, [
         {"C": 1, "kernel": "rbf"},
         {"C": 1, "kernel": "linear"},
@@ -296,14 +251,6 @@ classifications = [
         {"C": 5, "kernel": "sigmoid"},
         {"C": 5, "kernel": "poly"}
     ]],
-    # ["Nearest Neighbor", KNeighborsClassifier, [
-    #     {'n_neighbors': 3},
-    #     #    {'n_neighbors':4},
-    #     #    {'n_neighbors':5},
-    #     #    {'n_neighbors':6},
-    # ]],
-    # ["Naive Bayes Gaussian", MultinomialNB, [
-    #     {}]],
     ["Random Forest", RandomForestClassifier, [
         {"n_estimators": 50, "criterion": "entropy"},
         {"n_estimators": 100, "criterion": "entropy"},
@@ -376,13 +323,11 @@ tfidf_parameters = [{
 }]
 
 
-# In[79]:
 datasets = []
 
 SUMBER_OF_KFOLD_SPLITS = 3
 SUB_SAMPLE_RERUNS = 1
 TOP_K_WORDS = 20000
-
 
 TRAIN_TEST_PATH = 'data/articles_dictionary_annotated_'
 languages = ['de', 'es', 'pl', 'ro', 'sv', 'uk']
@@ -395,7 +340,6 @@ for language in languages:
 
 print("Datasets are ready")
 
-# In[ ]:
 pool = mp.Pool(processes=(mp.cpu_count()))
 results = pool.map(hyperparameter_sampling, buckets(
     datasets, ceil(len(datasets)/(mp.cpu_count()))))
