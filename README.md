@@ -5,7 +5,7 @@ Greasing the wheels for comparative communication research: Supervised text clas
 The article is under review at Computational Communication Research (https://computationalcommunication.org/ccr/preprint).
 
 
-The repository contains six scripts (four for annotation with dictionaries, one for classifier selection and one for model validation), two data files, and two files with results.
+The repository contains seven scripts (four for annotation with dictionaries, one for hyperparameter selection, one for classifier selection, and one for model validation), two data files, and three files with results.
 
 
 ### Dictionary Annotation
@@ -17,9 +17,12 @@ Welfare_Dictionary_Annotation.R\
 
 were used to annotate the English documents regarding the occurance of the Economy & budget, Labor market, Security, and Welfare frame. 
 
+### Hyperparameter selection
+
+The .py file was used to identify the best hyperparameters per algorithm for each frame and language.
 
 ### Classifier Selection
-The classification.py file was used to compare classification methods for smaller datasets.
+The classification.py file was used to compare classification methods by algorithm and number of training documents.
 
 Structure:
 - Everything before line 280 loads libraries and functions.
@@ -55,6 +58,8 @@ The articles_dictionary_annotated_train_test_set.csv file is the separate valida
 The articles_manual_annotated_validation_set.csv file is the sperate validation data. It was manually annotated by native speakers.
 
 ### Results
+
+The .csv file includes the results for hyperparamter optimization.
 
 The dictionary_training_test_results.csv file includes the results for classfier selection.
 
