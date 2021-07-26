@@ -17,12 +17,12 @@ Welfare_Dictionary_Annotation.R\
 
 were used to annotate the English documents regarding the occurance of the Economy & budget, Labor market, Security, and Welfare frame. 
 
-### Hyperparameter selection
+
+### Classifier Selection
 
 The hyperparameter_selection.py file was used to identify the best hyperparameter per algorithm for each frame and language.
 
-### Classifier Selection
-The classification.py file was used to compare classification methods by algorithm and number of training documents.
+The classification.py file was then used to compare classifier performance by algorithm and number of training documents.
 
 Structure:
 - Everything before line 280 loads libraries and functions.
