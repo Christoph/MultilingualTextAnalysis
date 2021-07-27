@@ -18,7 +18,7 @@ Welfare_Dictionary_Annotation.R\
 were used to annotate the English documents regarding the occurance of the Economy & budget, Labor market, Security, and Welfare frame. 
 
 ### Hyperparameter selection
-The hyperparameter_selection.py file was used to identify the best hyperparameters per algorithm for each frame and language.
+The hyperparameter_sampling.py file was used to identify the best hyperparameters per algorithm for each frame and language.
 
 Structure:
 - Everything before line 239 loads libraries and defines functions.
@@ -42,7 +42,7 @@ The classifier_evaluation.py file was used to evaluate the best classifiers usin
 
 Structure:
 - Everything before line 246 loads libraries and defines functions.
-- Lines 246 - 273 define the best performing settings for the MLP classifier for each language and target.
+- Lines 246 - 273 define the best performing settings for the MLP classifier for each language and target (here frame).
 - Lines 277 - 285 define the constant parameters for the subsample reruns and the preprocessing (tfidf).
 - Lines 291 - 292 define the varied sampling settings concerning the number of observations used to train the classifiers
 - Lines 296 - 297 train the MLP models on the sampled datasets and evaluate their performances using manually coded datasets.
