@@ -18,12 +18,12 @@ Welfare_Dictionary_Annotation.R\
 were used to annotate the English documents regarding the occurance of the Economy & budget, Labor market, Security, and Welfare frame. 
 
 ### Hyperparameter selection
-The hyperparameter_selection.py file was used to identify the best hyperparameter per algorithm for each frame and language.
+The hyperparameter_selection.py file was used to identify the best hyperparameters per algorithm for each frame and language.
 
 Structure:
 - Everything before line 239 loads libraries and defines functions.
-- Lines 239 - 314 define parameters for the three different classifiers that are varied.
-- Lines 316 - 334 define constant settings for preprocessing (tfidf; topk words were manually varied between 10,000 and 30,000 in each run) and sampling (kfold split, max number of observations).
+- Lines 239 - 314 define parameters for the three different classifiers, parameters are varied.
+- Lines 316 - 334 define constant settings for preprocessing (tfidf; top k words were manually varied between 10,000 and 30,000 in each run) and sampling (kfold split, max number of observations).
 - Lines 336 - 339 sample the data based on the sampling parameters.
 - Lines 343 - 350 train classifiers and return information on the performance of each setting.
 
@@ -32,7 +32,7 @@ The classification.py file was used to compare classification methods by algorit
 
 Structure:
 - Everything before line 254 loads libraries and defines functions.
-- Lines 258 - 343 define the best performing settings for each classifier, language, and target as dervied from the hyperparameter sampling procedure.
+- Lines 258 - 343 define the best performing settings for each classifier, language, and target (here frame) as dervied from the hyperparameter sampling procedure.
 - Lines 350 - 358 define the constant parameters for the subsample reruns and the preprocessing (tfidf).
 - Lines 361 - 362 define the varied sampling settings concerning the number of observations used to train the classifiers
 - Lines 366 - 367 sample the datasets based on the sampling parameters, trains classifiers according to the predefined settings on the sampled datasets and returns the performance scores.
@@ -55,11 +55,16 @@ The articles_manual_annotated_test_set.csv file is the separate test data. It wa
 
 ### Results
 
-The files results_hyperparamter_selection_rm.csv, results_hyperparamter_selection_svm.csv, and results_hyperparamter_selection_mlp.csv include the results for hyperparamter selection.
+results_hyperparamter_selection_rm.csv
+results_hyperparamter_selection_svm.csv
+results_hyperparamter_selection_mlp.csv 
 
-The dictionary_training_test_results.csv file includes the results for classfier selection.
+include the results for hyperparamter selection.
 
-The manual_test_results.csv file the results for the testing classifiers which were trained with dictionary annotated date with manually annotated test data.
+
+dictionary_training_test_results.csv includes the results for classfier selection.
+
+manual_test_results.csv includes the results for the classifiers which were trained with dictionary annotated date and tested with manually annotated test data.
 
 
 
