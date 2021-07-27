@@ -55,12 +55,7 @@ The articles_manual_annotated_test_set.csv file is the separate test data. It wa
 
 ### Results
 
-results_hyperparamter_selection_rm.csv
-results_hyperparamter_selection_svm.csv
-results_hyperparamter_selection_mlp.csv 
-
-include the results for hyperparamter selection.
-
+The files results_hyperparamter_selection_rm.csv, results_hyperparamter_selection_svm.csv, and results_hyperparamter_selection_mlp.csv include the results for hyperparamter selection.
 
 dictionary_training_test_results.csv includes the results for classfier selection.
 
