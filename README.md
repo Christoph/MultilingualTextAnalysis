@@ -13,7 +13,7 @@ The repository contains seven scripts (four for annotation with dictionaries, on
 Economy_Dictionary_Annotation.R\
 Labor_Market_Dictionary_Annotation.R\
 Security_Dictionary_Annotation.R\
-Welfare_Dictionary_Annotation.R\
+Welfare_Dictionary_Annotation.R
 
 were used to annotate the English documents regarding the occurance of the Economy & budget, Labor market, Security, and Welfare frame. 
 
@@ -55,7 +55,11 @@ The articles_manual_annotated_test_set.csv file is the separate test data. It wa
 
 ### Results
 
-The files results_hyperparamter_selection_rm.csv, results_hyperparamter_selection_svm.csv, and results_hyperparamter_selection_mlp.csv include the results for hyperparamter selection.
+results_hyperparamter_selection_rm.csv\
+results_hyperparamter_selection_svm.csv\
+results_hyperparamter_selection_mlp.csv 
+
+include the results for hyperparamter selection.
 
 dictionary_training_test_results.csv includes the results for classfier selection.
 
