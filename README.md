@@ -2,7 +2,7 @@
 
 This is the repository for the article:
 Greasing the wheels for comparative communication research: Supervised text classification for multilingual corpora https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3840747.
-The article is accepted at Computational Communication Research (https://computationalcommunication.org/ccr/preprint).
+The article is published in Computational Communication Research (https://www.aup-online.com/content/journals/10.5117/CCR2021.3.001.LIND).
 
 
 The repository contains seven scripts (four for annotation with dictionaries, one for hyperparameter selection, one for classifier selection, and one for additional classifier evaluation with manual test data), two data files, and five files with results.
